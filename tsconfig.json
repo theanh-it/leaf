@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "paths": {
+      "@root": ["./"],
+      "@vue/*": ["views/vue/*"]
+    },
+    "types": ["bun-types", "vue", "elysia"]
+  },
+  "include": [
+    "server.ts",
+    "routes/**/*.ts",
+    "src/**/*.ts",
+    "views/vue/**/*.ts",
+    "views/vue/**/*.vue",
+    "plugins/**/*.ts",
+    "types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "public",
+    "dist"
+  ]
+}
