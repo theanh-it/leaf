@@ -3,8 +3,12 @@ import type { Elysia } from "elysia";
 export const errorHandlerPlugin = () => {
   return (app: Elysia) => {
     return app.onError(({ code, error, set }) => {
-      // Log error (sẽ thay bằng logger sau)
-      console.error(`[Error ${code}]:`, error);
+      // Log error đơn giản - chỉ 1 dòng
+      if (code === "NOT_FOUND") {
+        // Bỏ qua log cho 404 errors (thường là static files)
+      } else {
+        console.error(`[${code}] ${error.message || error}`);
+      }
 
       // Không expose lỗi chi tiết trong production
       const isDevelopment = process.env.NODE_ENV === "development";
@@ -44,4 +48,3 @@ export const errorHandlerPlugin = () => {
     });
   };
 };
-

@@ -5,11 +5,14 @@ import os from "os";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
-import { nnnRouterPlugin } from "elysia-nnn-router";
-import { ejsPlugin } from "./plugins/ejs";
-import { errorHandlerPlugin } from "./plugins/error-handler";
-import { logger } from "./plugins/logger";
-import { config } from "./config";
+import { nnnRouterPlugin } from "@be-plugins/nnn-router";
+import { ejsPlugin } from "@be-plugins/ejs";
+import { bladePlugin } from "@be-plugins/blade";
+import { errorHandlerPlugin } from "@be-plugins/error-handler";
+import { responseHelperPlugin } from "@be-plugins/response-helper";
+import { viewHelperPlugin } from "@be-plugins/view-helper";
+import { config } from "@be-config/index";
+import path from "path";
 
 const app = new Elysia({
   serve: {
@@ -20,6 +23,9 @@ const app = new Elysia({
 
 // Error handling - phải được thêm đầu tiên
 app.use(errorHandlerPlugin());
+
+// Response helper plugin - thêm helper method status()
+app.use(responseHelperPlugin());
 
 // CORS với origins cụ thể
 app.use(
@@ -34,7 +40,7 @@ app.use(staticPlugin(config.static.dist));
 // Serve public folder (static assets)
 app.use(staticPlugin(config.static.public));
 
-// EJS plugin
+// EJS plugin - phải được thêm trước viewHelperPlugin
 app.use(
   ejsPlugin({
     viewsDir: config.ejs.viewsDir,
@@ -43,34 +49,28 @@ app.use(
   })
 );
 
+// View helper plugin - thêm helper method view() giống Laravel
+// Phải được thêm sau EJS plugin
+app.use(viewHelperPlugin());
+
+// Blade plugin - template engine giống Laravel Blade
+// Phải được thêm sau viewHelperPlugin
+app.use(
+  bladePlugin({
+    viewsDir: path.join(process.cwd(), "views/blade"),
+    cache: config.ejs.cache,
+    minify: config.ejs.minify,
+  })
+);
+
 // Routes
-app.use(
-  nnnRouterPlugin({
-    dir: "routes/api",
-    prefix: "/api",
-  })
-);
-app.use(
-  nnnRouterPlugin({
-    dir: "routes/ssr",
-    prefix: "/",
-  })
-);
-// Health check route
-app.use(
-  nnnRouterPlugin({
-    dir: "routes/health",
-    prefix: "/health",
-  })
-);
+app.use(nnnRouterPlugin());
 
 const size = os.cpus().length as unknown as string;
 process.env.UV_THREADPOOL_SIZE = size;
 
 app.listen(config.server.port, () => {
-  logger.info("Server started", {
-    port: config.server.port,
-    environment: config.nodeEnv,
-    threadPoolSize: size,
-  });
+  console.log(`Environment: ${config.nodeEnv}`);
+  console.log(`Server running on: http://localhost:${config.server.port}`);
+  console.log(`Thread pool size: ${size}`);
 });

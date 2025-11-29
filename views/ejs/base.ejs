@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'vi' %>">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title><%= seo.title %></title>
+    <meta name="title" content="<%= seo.title %>" />
+    <meta name="description" content="<%= seo.description %>" />
+    <% if (seo.meta.author) { %>
+    <meta name="author" content="<%= seo.meta.author %>" />
+    <% } %> <% if (seo.meta.robots) { %>
+    <meta name="robots" content="<%= seo.meta.robots %>" />
+    <% } %>
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= seo.canonical %>" />
+
+    <!-- Open Graph / Facebook -->
+    <% Object.keys(seo.og).forEach(key => { %>
+    <meta property="<%= key %>" content="<%= seo.og[key] %>" />
+    <% }) %>
+
+    <!-- Twitter Card -->
+    <% Object.keys(seo.twitter).forEach(key => { %>
+    <meta name="<%= key %>" content="<%= seo.twitter[key] %>" />
+    <% }) %> <% if (twitterHandle) { %>
+    <meta name="twitter:site" content="@<%= twitterHandle %>" />
+    <meta name="twitter:creator" content="@<%= twitterHandle %>" />
+    <% } %>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Stylesheets -->
+    <% if (css) { %>
+    <link rel="stylesheet" href="<%= css %>" />
+    <% } %>
+
+    <!-- Structured Data (JSON-LD) -->
+    <% if (structuredData && structuredData.length > 0) { %> <%
+    structuredData.forEach(data => { %>
+    <script type="application/ld+json">
+      <%= data %>
+    </script>
+    <% }) %> <% } %>
+  </head>
+  <body>
+    <!-- Include header partial (giống Blade @include) -->
+    <%- include('partials/header') %>
+
+    <main><%- body %></main>
+
+    <!-- Include footer partial -->
+    <%- include('partials/footer') %>
+
+    <!-- Scripts -->
+    <% if (js) { %>
+    <script type="module" src="<%= js %>"></script>
+    <% } %>
+  </body>
+</html>

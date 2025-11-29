@@ -1,0 +1,11 @@
+/**
+ * SCSS Index File - Modern Sass 3 Syntax
+ * Forward tất cả variables và mixins để sử dụng trong additionalData
+ * 
+ * Mixins đã có @use './variables' nên sẽ tự động có access đến variables
+ * Khi forward, cả variables và mixins sẽ được expose
+ */
+
+@forward './variables';
+@forward './mixins';
+

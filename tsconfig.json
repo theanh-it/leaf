@@ -19,8 +19,30 @@
     "verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
-      "@root": ["./"],
-      "@vue/*": ["views/vue/*"]
+      // Root
+      "@/*": ["./*"],
+      // Backend aliases
+      "@be": ["./"],
+      "@be-types/*": ["./types/*"],
+      "@be-plugins/*": ["./plugins/*"],
+      "@be-routes/*": ["./routes/*"],
+      "@be-config/*": ["./config/*"],
+      "@be-helpers/*": ["./helpers/*"],
+      "@be-utils/*": ["./utils/*"],
+      "@be-services/*": ["./services/*"],
+      "@be-engines/*": ["./engines/*"],
+      // Frontend aliases
+      "@fe/*": ["./views/vue/*"],
+      "@fe-constants/*": ["./views/vue/constants/*"],
+      "@fe-helpers/*": ["./views/vue/helpers/*"],
+      "@fe-components/*": ["./views/vue/components/*"],
+      "@fe-plugins/*": ["./plugins/*"],
+      "@fe-stores/*": ["./views/vue/stores/*"],
+      "@fe-routes/*": ["./views/vue/routes/*"],
+      "@fe-pages/*": ["./views/vue/pages/*"],
+      "@fe-utils/*": ["./views/vue/utils/*"],
+      "@fe-types/*": ["./views/vue/types/*"],
+      "@fe-assets/*": ["./public/*"]
     },
     "types": ["bun-types", "vue", "elysia"]
   },

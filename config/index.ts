@@ -5,7 +5,10 @@ export const config = {
     idleTimeout: 255,
   },
   cors: {
-    origin: (process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"]) as string[],
+    origin: (process.env.CORS_ORIGIN?.split(",") || [
+      "http://localhost:3000",
+      "http://localhost:5000",
+    ]) as string[],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"] as string[],
   },
   vite: {
@@ -26,6 +29,12 @@ export const config = {
       prefix: "/",
     },
   },
+  seo: {
+    baseUrl: process.env.BASE_URL || "http://localhost:5000",
+    siteName: process.env.SITE_NAME || "Leaf App",
+    defaultImage: process.env.DEFAULT_OG_IMAGE || "/og-default.jpg",
+    locale: process.env.SITE_LOCALE || "vi_VN",
+    twitterHandle: process.env.TWITTER_HANDLE || "",
+  },
   nodeEnv: process.env.NODE_ENV || "development",
 } as const;
-

@@ -1,6 +1,6 @@
-import type { Context } from "elysia";
+import type { LeafContext } from "@be-types/leaf";
 
-export default (ctx: Context) => {
+export default (ctx: LeafContext) => {
   return ctx.status(200, {
     message: "Hello World API",
   });
