@@ -10,12 +10,14 @@
     @endif
   </head>
   <body>
-    @include('partials.header')
+    <div id="app">
+      @include('partials.header')
 
-    <main>@yield('content')</main>
+      <main>@yield('content')</main>
 
-    @include('partials.footer') @if(js)
-    <script type="module" src="{{ js }}"></script>
-    @endif
+      @include('partials.footer') @if(js)
+      <script type="module" src="{{ js }}"></script>
+      @endif
+    </div>
   </body>
 </html>

@@ -26,6 +26,7 @@
       "@be-types/*": ["./types/*"],
       "@be-plugins/*": ["./plugins/*"],
       "@be-routes/*": ["./routes/*"],
+      "@be-config": ["./config/index"],
       "@be-config/*": ["./config/*"],
       "@be-helpers/*": ["./helpers/*"],
       "@be-utils/*": ["./utils/*"],

@@ -10,12 +10,12 @@
         "ejs": "^3.1.10",
         "elysia": "^1.4.16",
         "elysia-nnn-router": "^0.1.1",
+        "leaf-blade": "^0.0.1",
         "module-alias": "^2.2.3",
         "prisma": "^7.0.1",
         "vue-router": "^4.6.3",
       },
       "devDependencies": {
-        "@types/ejs": "^3.1.5",
         "@types/html-minifier-terser": "^7.0.2",
         "@types/node": "^24.0.1",
         "@vitejs/plugin-vue": "^5.1.4",
@@ -229,8 +229,6 @@
 
     "@tsconfig/node16": ["@tsconfig/node16@1.0.4", "", {}, "sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA=="],
 
-    "@types/ejs": ["@types/ejs@3.1.5", "", {}, "sha512-nv+GSx77ZtXiJzwKdsASqi+YQ5Z7vwHsTP0JY2SiQgjGckkBRKZnk8nIM+7oUZ1VCtuTz0+By4qVR7fqzp/Dfg=="],
-
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
 
     "@types/html-minifier-terser": ["@types/html-minifier-terser@7.0.2", "", {}, "sha512-mm2HqV22l8lFQh4r2oSsOEVea+m0qqxEmwpc9kC1p/XzmjLWrReR9D/GRs8Pex2NX/imyEH9c5IU/7tMBQCHOA=="],
@@ -422,6 +420,8 @@
     "jake": ["jake@10.9.4", "", { "dependencies": { "async": "^3.2.6", "filelist": "^1.0.4", "picocolors": "^1.1.1" }, "bin": { "jake": "bin/cli.js" } }, "sha512-wpHYzhxiVQL+IV05BLE2Xn34zW1S223hvjtqk0+gsPrwd/8JNLXJgZZM/iPFsYc1xyphF+6M6EvdE5E9MBGkDA=="],
 
     "jiti": ["jiti@2.6.1", "", { "bin": { "jiti": "lib/jiti-cli.mjs" } }, "sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ=="],
+
+    "leaf-blade": ["leaf-blade@0.0.1", "", { "dependencies": { "ejs": "^3.1.10", "elysia": "^1.4.16", "html-minifier-terser": "^7.2.0" } }, "sha512-9Q0LuB8cewvRJJcnr0aN6eWBlrwxk7aiqRQp0cr+b4eDmo6/1J1ngGT6FWjN34uBWxGtwJu0PmrTk0Zj0RWTzg=="],
 
     "lilconfig": ["lilconfig@2.1.0", "", {}, "sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ=="],
 

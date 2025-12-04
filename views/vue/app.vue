@@ -1,9 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+
+const count = ref(0);
+</script>
 
 <template>
   <div class="app">
-    <h1>Hello World</h1>
+    <h1>Leaf App</h1>
     <p class="subtitle">SCSS is now working! 🎉</p>
+    <button @click="count++">{{ count }}</button>
   </div>
 </template>
 

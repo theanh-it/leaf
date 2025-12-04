@@ -6,11 +6,12 @@
   "scripts": {
     "start": "bun run dist/server.js",
     "fe": "vite",
+    "build:fe": "vite build",
     "watch": "vite build --watch",
     "be": "bunx nodemon --exec \"bun run\" server.ts --ignore public/**",
     "build:be": "bun build server.ts --outdir dist --target node",
-    "dev": "concurrently \"bun run be\" \"bun run fe\"",
-    "build": "vite build; bun run build:be"
+    "dev": "concurrently \"bun run be\" \"bun run watch\"",
+    "build": "bun run build:fe; bun run build:be"
   },
   "keywords": [],
   "author": "",
@@ -23,12 +24,12 @@
     "ejs": "^3.1.10",
     "elysia": "^1.4.16",
     "elysia-nnn-router": "^0.1.1",
+    "leaf-blade": "^0.0.1",
     "module-alias": "^2.2.3",
     "prisma": "^7.0.1",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
-    "@types/ejs": "^3.1.5",
     "@types/html-minifier-terser": "^7.0.2",
     "@types/node": "^24.0.1",
     "@vitejs/plugin-vue": "^5.1.4",

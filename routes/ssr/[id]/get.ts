@@ -3,7 +3,7 @@
  */
 
 import type { LeafContext } from "@be-types/leaf";
-import { bladeView } from "@be-helpers/blade-view";
+import { bladeView } from "leaf-blade";
 
 export default async (ctx: LeafContext) => {
   return bladeView(ctx, "about", {

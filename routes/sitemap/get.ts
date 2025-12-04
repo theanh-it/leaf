@@ -1,5 +1,5 @@
 import type { Context } from "elysia";
-import { config } from "@be-config/index";
+import { config } from "@be-config";
 
 interface SitemapUrl {
   loc: string;

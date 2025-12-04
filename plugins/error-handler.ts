@@ -2,7 +2,7 @@ import type { Elysia } from "elysia";
 
 export const errorHandlerPlugin = () => {
   return (app: Elysia) => {
-    return app.onError(({ code, error, set }) => {
+    return app.onError(({ code, error, set }: any) => {
       // Log error đơn giản - chỉ 1 dòng
       if (code === "NOT_FOUND") {
         // Bỏ qua log cho 404 errors (thường là static files)

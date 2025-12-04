@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
+import { config } from "@/config";
 
 export default defineConfig({
   plugins: [vue()],
@@ -23,7 +24,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "."),
-      // Frontend aliases
       "@fe": resolve(__dirname, "views/vue"),
       "@fe-constants": resolve(__dirname, "views/vue/constants"),
       "@fe-helpers": resolve(__dirname, "views/vue/helpers"),
@@ -35,15 +35,6 @@ export default defineConfig({
       "@fe-utils": resolve(__dirname, "views/vue/utils"),
       "@fe-types": resolve(__dirname, "views/vue/types"),
       "@fe-assets": resolve(__dirname, "public"),
-      // Backend aliases (for shared types/utils if needed)
-      "@be": resolve(__dirname, "."),
-      "@be-types": resolve(__dirname, "types"),
-      "@be-plugins": resolve(__dirname, "plugins"),
-      "@be-routes": resolve(__dirname, "routes"),
-      "@be-config": resolve(__dirname, "config"),
-      "@be-helpers": resolve(__dirname, "helpers"),
-      "@be-utils": resolve(__dirname, "utils"),
-      "@be-services": resolve(__dirname, "services"),
     },
   },
   optimizeDeps: {
@@ -65,6 +56,6 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: config.vite.devPort,
   },
 });
