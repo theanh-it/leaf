@@ -8,7 +8,7 @@ export interface SEOData {
   description: string;
   image?: string;
   url?: string;
-  type?: 'website' | 'article' | 'product' | 'profile';
+  type?: "website" | "article" | "product" | "profile";
   siteName?: string;
   author?: string;
   publishedTime?: string;
@@ -19,16 +19,21 @@ export interface SEOData {
   nofollow?: boolean;
 }
 
+// Dữ liệu JSON-LD cơ bản, '@type' sẽ được thêm tự động trong generateStructuredData
 export interface StructuredData {
-  '@context'?: string;
-  '@type': string;
+  "@context"?: string;
+  "@type"?: string;
+  // Cho phép các field tùy ý khác
   [key: string]: any;
 }
 
 /**
  * Generate SEO meta tags object
  */
-export function generateSEO(data: SEOData, baseUrl: string = ''): {
+export function generateSEO(
+  data: SEOData,
+  baseUrl: string = ""
+): {
   title: string;
   description: string;
   meta: Record<string, string>;
@@ -38,50 +43,52 @@ export function generateSEO(data: SEOData, baseUrl: string = ''): {
   robots: string;
 } {
   const url = data.url ? `${baseUrl}${data.url}` : baseUrl;
-  const image = data.image 
-    ? (data.image.startsWith('http') ? data.image : `${baseUrl}${data.image}`)
+  const image = data.image
+    ? data.image.startsWith("http")
+      ? data.image
+      : `${baseUrl}${data.image}`
     : `${baseUrl}/og-default.jpg`;
 
   const meta: Record<string, string> = {
     description: data.description,
-    'author': data.author || '',
-    'viewport': 'width=device-width, initial-scale=1.0',
+    author: data.author || "",
+    viewport: "width=device-width, initial-scale=1.0",
   };
 
   // Robots meta
   const robots: string[] = [];
-  if (data.noindex) robots.push('noindex');
-  if (data.nofollow) robots.push('nofollow');
+  if (data.noindex) robots.push("noindex");
+  if (data.nofollow) robots.push("nofollow");
   if (robots.length > 0) {
-    meta.robots = robots.join(', ');
+    meta.robots = robots.join(", ");
   }
 
   // Open Graph
   const og: Record<string, string> = {
-    'og:title': data.title,
-    'og:description': data.description,
-    'og:image': image,
-    'og:url': url,
-    'og:type': data.type || 'website',
-    'og:locale': data.locale || 'vi_VN',
+    "og:title": data.title,
+    "og:description": data.description,
+    "og:image": image,
+    "og:url": url,
+    "og:type": data.type || "website",
+    "og:locale": data.locale || "vi_VN",
   };
 
   if (data.siteName) {
-    og['og:site_name'] = data.siteName;
+    og["og:site_name"] = data.siteName;
   }
 
-  if (data.type === 'article') {
-    if (data.publishedTime) og['article:published_time'] = data.publishedTime;
-    if (data.modifiedTime) og['article:modified_time'] = data.modifiedTime;
-    if (data.author) og['article:author'] = data.author;
+  if (data.type === "article") {
+    if (data.publishedTime) og["article:published_time"] = data.publishedTime;
+    if (data.modifiedTime) og["article:modified_time"] = data.modifiedTime;
+    if (data.author) og["article:author"] = data.author;
   }
 
   // Twitter Card
   const twitter: Record<string, string> = {
-    'twitter:card': 'summary_large_image',
-    'twitter:title': data.title,
-    'twitter:description': data.description,
-    'twitter:image': image,
+    "twitter:card": "summary_large_image",
+    "twitter:title": data.title,
+    "twitter:description": data.description,
+    "twitter:image": image,
   };
 
   return {
@@ -91,7 +98,7 @@ export function generateSEO(data: SEOData, baseUrl: string = ''): {
     og,
     twitter,
     canonical: url,
-    robots: robots.length > 0 ? robots.join(', ') : 'index, follow',
+    robots: robots.length > 0 ? robots.join(", ") : "index, follow",
   };
 }
 
@@ -99,12 +106,12 @@ export function generateSEO(data: SEOData, baseUrl: string = ''): {
  * Generate JSON-LD structured data
  */
 export function generateStructuredData(
-  type: 'WebSite' | 'Article' | 'Product' | 'Organization' | 'BreadcrumbList',
+  type: "WebSite" | "Article" | "Product" | "Organization" | "BreadcrumbList",
   data: StructuredData
 ): string {
   const baseData: StructuredData = {
-    '@context': 'https://schema.org',
-    '@type': type,
+    "@context": "https://schema.org",
+    "@type": type,
     ...data,
   };
 
@@ -114,8 +121,11 @@ export function generateStructuredData(
 /**
  * Generate Website structured data
  */
-export function generateWebSiteStructuredData(baseUrl: string, siteName: string): string {
-  return generateStructuredData('WebSite', {
+export function generateWebSiteStructuredData(
+  baseUrl: string,
+  siteName: string
+): string {
+  return generateStructuredData("WebSite", {
     name: siteName,
     url: baseUrl,
   });
@@ -133,24 +143,26 @@ export function generateArticleStructuredData(data: {
   author: { name: string; url?: string };
   publisher: { name: string; logo?: { url: string } };
 }): string {
-  return generateStructuredData('Article', {
+  return generateStructuredData("Article", {
     headline: data.headline,
     description: data.description,
     image: data.image,
     datePublished: data.datePublished,
     dateModified: data.dateModified || data.datePublished,
     author: {
-      '@type': 'Person',
+      "@type": "Person",
       name: data.author.name,
       url: data.author.url,
     },
     publisher: {
-      '@type': 'Organization',
+      "@type": "Organization",
       name: data.publisher.name,
-      logo: data.publisher.logo ? {
-        '@type': 'ImageObject',
-        url: data.publisher.logo.url,
-      } : undefined,
+      logo: data.publisher.logo
+        ? {
+            "@type": "ImageObject",
+            url: data.publisher.logo.url,
+          }
+        : undefined,
     },
   });
 }
@@ -158,14 +170,15 @@ export function generateArticleStructuredData(data: {
 /**
  * Generate BreadcrumbList structured data
  */
-export function generateBreadcrumbStructuredData(items: Array<{ name: string; url: string }>): string {
-  return generateStructuredData('BreadcrumbList', {
+export function generateBreadcrumbStructuredData(
+  items: Array<{ name: string; url: string }>
+): string {
+  return generateStructuredData("BreadcrumbList", {
     itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: index + 1,
       name: item.name,
       item: item.url,
     })),
   });
 }
-

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
-import { config } from "@/config";
+import { config } from "./config";
 
 export default defineConfig({
   plugins: [vue()],

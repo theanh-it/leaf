@@ -6,7 +6,7 @@ const count = ref(0);
 
 <template>
   <div class="app">
-    <h1>Leaf App</h1>
+    <h1 class="title">Leaf App</h1>
     <p class="subtitle">SCSS is now working! 🎉</p>
     <button @click="count++">{{ count }}</button>
   </div>
@@ -21,15 +21,25 @@ const count = ref(0);
   min-height: 100vh;
   padding: $spacing-8;
 
-  h1 {
-    color: $primary;
-    margin-bottom: $spacing-4;
-    font-size: $font-size-4xl;
+  .title {
+    background-image: url("https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-clip: text;
+    color: transparent;
+    animation: gradient 20s linear infinite;
   }
 
   .subtitle {
     color: $gray-600;
     font-size: $font-size-lg;
+  }
+}
+
+@keyframes gradient {
+  to {
+    background-position-x: -500px;
   }
 }
 </style>

@@ -6,7 +6,8 @@ import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
 
 import { config } from "@be-config";
-import { nnnRouterPlugin } from "@be-plugins/nnn-router";
+// import { nnnRouterPlugin } from "@be-plugins/nnn-router";
+import { nnnRouterPlugin } from "elysia-nnn-router";
 import { bladePlugin } from "@be-plugins/blade";
 import { errorHandlerPlugin } from "@be-plugins/error-handler";
 
