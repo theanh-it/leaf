@@ -3,5 +3,9 @@ import "@fe/styles/main.scss";
 
 import { createApp } from "vue";
 import App from "@fe/app.vue";
+import router from "@fe/routes";
+import { createPinia } from "pinia";
 
-createApp(App).mount("#app");
+const pinia = createPinia();
+
+createApp(App).use(router).use(pinia).mount("#app");

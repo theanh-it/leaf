@@ -6,7 +6,6 @@ import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
 
 import { config } from "@be-config";
-// import { nnnRouterPlugin } from "@be-plugins/nnn-router";
 import { nnnRouterPlugin } from "elysia-nnn-router";
 import { bladePlugin } from "@be-plugins/blade";
 import { errorHandlerPlugin } from "@be-plugins/error-handler";
@@ -19,9 +18,8 @@ app.use(errorHandlerPlugin());
 // CORS với origins cụ thể
 app.use(cors(config.cors));
 
-// static assets
+// static
 app.use(staticPlugin(config.static.dist));
-app.use(staticPlugin(config.static.public));
 
 // Blade plugin - template engine giống Laravel Blade
 app.use(bladePlugin(config.blade));

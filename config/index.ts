@@ -23,13 +23,13 @@ export const config = {
   },
   static: {
     dist: {
-      assets: "dist",
-      prefix: "/dist",
-    },
-    public: {
-      assets: "public",
+      assets: "dist/fe",
       prefix: "/",
     },
+    // public: {
+    //   assets: "public",
+    //   prefix: "/",
+    // },
   },
   routes: [
     {

@@ -23,11 +23,13 @@
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "elysia": "^1.4.16",
-    "elysia-nnn-router": "^0.1.1",
+    "elysia-nnn-router": "^0.1.2",
     "leaf-blade": "^0.0.1",
+    "leaf-seo": "^0.0.1",
     "module-alias": "^2.2.3",
+    "pinia": "^3.0.4",
     "prisma": "^7.0.1",
-    "vue-router": "^4.6.3"
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@types/html-minifier-terser": "^7.0.2",
@@ -36,6 +38,7 @@
     "bun-types": "latest",
     "concurrently": "^8.2.2",
     "html-minifier-terser": "^7.2.0",
+    "prettier": "^3.7.4",
     "sass": "^1.94.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",

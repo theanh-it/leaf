@@ -42,7 +42,7 @@ export default defineConfig({
   },
   publicDir: "public",
   build: {
-    outDir: "dist",
+    outDir: "dist/fe",
     manifest: true,
     emptyOutDir: true,
     minify: "terser",
@@ -53,6 +53,26 @@ export default defineConfig({
     },
     rollupOptions: {
       input: resolve(__dirname, "index.html"),
+      output: {
+        manualChunks(id) {
+          if (id.includes("/node_modules/vue/")) return "vue";
+          if (id.includes("/node_modules/@vue/shared/")) return "@vue/shared";
+          if (id.includes("/node_modules/@vue/reactivity/"))
+            return "@vue/reactivity";
+          if (id.includes("/node_modules/@vue/runtime-core/"))
+            return "@vue/runtime-core";
+          if (id.includes("/node_modules/@vue/runtime-dom/"))
+            return "@vue/runtime-dom";
+          if (id.includes("/node_modules/@vue/compiler-sfc/"))
+            return "@vue/compiler-sfc";
+          if (id.includes("/node_modules/vue-router/")) return "vue-router";
+          if (id.includes("/node_modules/pinia/")) return "pinia";
+          if (id.includes("node_modules")) return "vendor";
+        },
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+        entryFileNames: "assets/[name]-[hash].js",
+      },
     },
   },
   server: {

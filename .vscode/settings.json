@@ -1,0 +1,14 @@
+{
+  "[blade]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+  "files.associations": {
+    "*.blade.html": "blade"
+  },
+  "prettier.ignorePath": ".prettierignore",
+  "prettier.documentSelectors": [
+    "!**/*.blade.html"
+  ]
+}
+

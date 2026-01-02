@@ -4,7 +4,7 @@ import path from "path";
 export default (ctx: any) => {
   // Lấy đường dẫn tuyệt đối từ thư mục gốc dự án
   const root = process.cwd();
-  const manifestPath = path.join(root, "dist/.vite/manifest.json");
+  const manifestPath = path.join(root, "dist/fe/.vite/manifest.json");
 
   let vite = {
     main: "",
@@ -24,8 +24,8 @@ export default (ctx: any) => {
         : "";
 
       vite = {
-        main: `/dist/${main}`,
-        css: css ? `/dist/${css}` : "",
+        main: `/${main}`,
+        css: css ? `/${css}` : "",
       };
     }
   }

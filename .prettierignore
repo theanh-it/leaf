@@ -1,0 +1,21 @@
+# Blade templates
+**/*.blade.html
+*.blade.html
+views/blade/**/*.blade.html
+
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+
+# Lock files
+*.lock
+
+# Environment files
+.env
+.env.*
+
+# Public assets
+public
+

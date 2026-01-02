@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!-- prettier-ignore -->
+<!doctype html>
 <html lang="{{ lang || 'vi' }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@yield('title', 'Leaf App')</title>
-
+    <title>@yield('title')</title>
     @if(css)
     <link rel="stylesheet" href="{{ css }}" />
     @endif
@@ -12,10 +12,10 @@
   <body>
     <div id="app">
       @include('partials.header')
-
       <main>@yield('content')</main>
-
-      @include('partials.footer') @if(js)
+      @include('partials.footer')
+      <!-- prettier-ignore -->
+      @if(js)
       <script type="module" src="{{ js }}"></script>
       @endif
     </div>
