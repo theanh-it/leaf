@@ -1,36 +1,82 @@
-import fs from "fs";
-import path from "path";
+import { join } from "node:path";
 
-export default (ctx: any) => {
-  // Lấy đường dẫn tuyệt đối từ thư mục gốc dự án
-  const root = process.cwd();
-  const manifestPath = path.join(root, "dist/.vite/manifest.json");
+import type { LeafContext, ViteAssets } from "@be-types/leaf";
 
-  let vite = {
-    main: "",
-    css: "",
-  };
+type ManifestChunk = {
+  file: string;
+  css?: string | string[];
+  imports?: string[];
+  dynamicImports?: string[];
+};
+type ViteManifest = Record<string, ManifestChunk>;
 
-  if (fs.existsSync(manifestPath)) {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as any;
-    const entry = manifest["index.html"];
+const EMPTY_ASSETS: ViteAssets = { main: "", css: [], imports: [] };
+const MANIFEST_PATH = join(process.cwd(), "dist/fe/.vite/manifest.json");
+const IS_PROD = process.env.NODE_ENV === "production";
 
-    if (entry) {
-      const main = entry.file;
-      const css = entry.css
-        ? Array.isArray(entry.css)
-          ? entry.css[0]
-          : entry.css
-        : "";
+const toArray = <T>(v: T | T[] | undefined): T[] =>
+  v == null ? [] : Array.isArray(v) ? v : [v];
 
-      vite = {
-        main: `/dist/${main}`,
-        css: css ? `/dist/${css}` : "",
-      };
-    }
+const withSlash = (p: string) => (p.startsWith("/") ? p : `/${p}`);
+
+function buildAssets(manifest: ViteManifest): ViteAssets {
+  const entry = manifest["index.html"];
+  if (!entry) return EMPTY_ASSETS;
+
+  const css = new Set<string>(toArray(entry.css));
+  const visited = new Set<string>();
+  const stack: string[] = [...(entry.imports ?? [])];
+
+  // Iterative thay vì đệ quy: an toàn với graph imports lớn.
+  while (stack.length > 0) {
+    const key = stack.pop()!;
+    if (key === "index.html" || visited.has(key)) continue;
+    const chunk = manifest[key];
+    if (!chunk) continue;
+    visited.add(key);
+    for (const c of toArray(chunk.css)) css.add(c);
+    if (chunk.imports?.length) stack.push(...chunk.imports);
   }
 
-  Object.assign(ctx, {
-    vite,
-  });
+  const imports = Array.from(visited, (k) => manifest[k]?.file)
+    .filter((f): f is string => Boolean(f))
+    .map(withSlash);
+
+  return {
+    main: withSlash(entry.file),
+    css: Array.from(css, withSlash),
+    imports,
+  };
+}
+
+// Cache assets ở production; dev luôn đọc mới để hot-reload theo build.
+// Single-flight tránh nhiều request đầu tiên cùng đọc/parse manifest song song.
+let cachedAssets: ViteAssets | null = null;
+let inflight: Promise<ViteAssets> | null = null;
+
+async function loadAssets(): Promise<ViteAssets> {
+  if (IS_PROD && cachedAssets) return cachedAssets;
+  if (inflight) return inflight;
+
+  inflight = (async () => {
+    try {
+      const file = Bun.file(MANIFEST_PATH);
+      if (!(await file.exists())) return EMPTY_ASSETS;
+      const manifest = (await file.json()) as ViteManifest;
+      const assets = buildAssets(manifest);
+      if (IS_PROD) cachedAssets = assets;
+      return assets;
+    } catch (err) {
+      console.error("[ssr] Failed to load Vite manifest:", err);
+      return EMPTY_ASSETS;
+    } finally {
+      inflight = null;
+    }
+  })();
+
+  return inflight;
+}
+
+export const ssrMiddleware = async (ctx: LeafContext): Promise<void> => {
+  ctx.vite = await loadAssets();
 };

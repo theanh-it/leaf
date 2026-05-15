@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
@@ -26,6 +26,7 @@
       "@be-types/*": ["./types/*"],
       "@be-plugins/*": ["./plugins/*"],
       "@be-routes/*": ["./routes/*"],
+      "@be-middlewares/*": ["./middlewares/*"],
       "@be-config": ["./config/index"],
       "@be-config/*": ["./config/*"],
       "@be-helpers/*": ["./helpers/*"],
@@ -37,7 +38,7 @@
       "@fe-constants/*": ["./views/vue/constants/*"],
       "@fe-helpers/*": ["./views/vue/helpers/*"],
       "@fe-components/*": ["./views/vue/components/*"],
-      "@fe-plugins/*": ["./plugins/*"],
+      "@fe-plugins/*": ["./views/vue/plugins/*"],
       "@fe-stores/*": ["./views/vue/stores/*"],
       "@fe-routes/*": ["./views/vue/routes/*"],
       "@fe-pages/*": ["./views/vue/pages/*"],
@@ -45,16 +46,18 @@
       "@fe-types/*": ["./views/vue/types/*"],
       "@fe-assets/*": ["./public/*"]
     },
-    "types": ["bun-types", "vue", "elysia"]
+    "types": ["bun-types", "vue", "elysia", "vite/client"]
   },
   "include": [
     "server.ts",
     "routes/**/*.ts",
+    "services/**/*.ts",
     "src/**/*.ts",
     "views/vue/**/*.ts",
     "views/vue/**/*.vue",
     "plugins/**/*.ts",
-    "types/**/*.d.ts"
+    "types/**/*.d.ts",
+    "prisma/**/*.ts"
   ],
   "exclude": [
     "node_modules",

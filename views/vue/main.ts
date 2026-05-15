@@ -1,11 +1,27 @@
-// Import SCSS main file (variables và mixins đã được auto-inject)
-import "@fe/styles/main.scss";
+import "@fe/styles/common.scss";
 
 import { createApp } from "vue";
+import VWave from "v-wave";
+import Notifications from "@kyvg/vue3-notification";
+
+import { router } from "@fe-plugins/nnn-router";
+import pinia from "@fe-plugins/pinia";
+import { FontAwesomeIcon } from "@fe-plugins/font-awesome";
+
 import App from "@fe/app.vue";
-import router from "@fe/routes";
-import { createPinia } from "pinia";
 
-const pinia = createPinia();
+const app = createApp(App);
 
-createApp(App).use(router).use(pinia).mount("#app");
+app.use(router);
+app.use(pinia);
+app.use(Notifications);
+app.use(VWave, {
+  // color: "red",
+  initialOpacity: 0.2,
+  easing: "ease-in",
+  duration: 0.4,
+});
+
+app.component("fa-icon", FontAwesomeIcon);
+
+app.mount("#app");

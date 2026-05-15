@@ -2,17 +2,25 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { config } from "./config";
+import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    visualizer({
+      filename: "dist/fe/stats.html",
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ],
   css: {
     preprocessorOptions: {
       scss: {
         // Modern Sass 3 syntax - tự động inject vào mọi SCSS file
         // Sử dụng @use với index file để forward tất cả variables và mixins
         additionalData: `
-          @use "sass:color";
-          @use "${resolve(__dirname, "views/vue/styles/index.scss")}" as *;
+          @use "${resolve(__dirname, "views/vue/styles/main.scss")}" as *;
         `,
         // Suppress deprecation warnings
         silenceDeprecations: ["legacy-js-api"],
@@ -28,7 +36,7 @@ export default defineConfig({
       "@fe-constants": resolve(__dirname, "views/vue/constants"),
       "@fe-helpers": resolve(__dirname, "views/vue/helpers"),
       "@fe-components": resolve(__dirname, "views/vue/components"),
-      "@fe-plugins": resolve(__dirname, "plugins"),
+      "@fe-plugins": resolve(__dirname, "views/vue/plugins"),
       "@fe-stores": resolve(__dirname, "views/vue/stores"),
       "@fe-routes": resolve(__dirname, "views/vue/routes"),
       "@fe-pages": resolve(__dirname, "views/vue/pages"),
@@ -39,13 +47,14 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["vue"],
+    exclude: ["date-fns"],
   },
   publicDir: "public",
   build: {
     outDir: "dist/fe",
     manifest: true,
     emptyOutDir: true,
-    minify: "terser",
+    //minify: "terser",
     terserOptions: {
       compress: {
         drop_console: true,
@@ -56,17 +65,30 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("/node_modules/vue/")) return "vue";
-          if (id.includes("/node_modules/@vue/shared/")) return "@vue/shared";
-          if (id.includes("/node_modules/@vue/reactivity/"))
-            return "@vue/reactivity";
-          if (id.includes("/node_modules/@vue/runtime-core/"))
-            return "@vue/runtime-core";
-          if (id.includes("/node_modules/@vue/runtime-dom/"))
-            return "@vue/runtime-dom";
-          if (id.includes("/node_modules/@vue/compiler-sfc/"))
-            return "@vue/compiler-sfc";
           if (id.includes("/node_modules/vue-router/")) return "vue-router";
           if (id.includes("/node_modules/pinia/")) return "pinia";
+
+          if (id.includes("/node_modules/date-fns/")) return "date-fns";
+          if (id.includes("/node_modules/ky/")) return "ky";
+
+          // @vuelidate/core
+          if (id.includes("/node_modules/@vuelidate/core/"))
+            return "@vuelidate/core";
+          if (id.includes("/node_modules/@vuelidate/validators/"))
+            return "@vuelidate/validators";
+
+          // @kyvg/vue3-notification
+          if (id.includes("/node_modules/@kyvg/vue3-notification/"))
+            return "@kyvg/vue3-notification";
+
+          // pica
+          if (id.includes("/node_modules/pica/")) return "pica";
+          // pica-resize-image
+          if (id.includes("/node_modules/pica-resize-image/"))
+            return "pica-resize-image";
+          // heic2any
+          if (id.includes("/node_modules/heic2any/")) return "heic2any";
+
           if (id.includes("node_modules")) return "vendor";
         },
         chunkFileNames: "assets/[name]-[hash].js",
