@@ -1,7 +1,7 @@
 import ky from "ky";
 import type { BeforeRequestState } from "ky";
 
-import type { ResponseApi } from "@/types/api";
+import type { ResponseApi } from "@fe-types/api";
 
 export const baseApi = ky.create({
   prefix: import.meta.env.VITE_API_URL,

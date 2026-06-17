@@ -1,22 +1,53 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { createNnnRoutes } from "vue-nnn-router";
+import { createNnnRoutes, createNnnModules } from "vue-nnn-router";
 
-/** Glob neo theo root Vite (demo/): `/...` không phụ thuộc vị trí file router. */
-const modules = import.meta.glob(
-  [
-    "/views/vue/pages/**/*.{vue,tsx,jsx,ts,js}",
-    "/views/vue/pages/**/_middleware.ts",
-  ],
-  { eager: true }
-);
+const isDev = import.meta.env.DEV;
 
-const routes = createNnnRoutes(modules as Record<string, unknown>, {
-  routesRoot: "views/vue/pages",
-  verbose: import.meta.env.DEV,
-  silent: false,
-});
+const createRouterProduction = () => {
+  const lazyViews = import.meta.glob("/views/vue/pages/**/*.{vue,tsx,jsx}");
+  const eagerSidecars = import.meta.glob(
+    ["/views/vue/pages/**/_middleware.ts", "/views/vue/pages/**/_redirect.ts"],
+    { eager: true }
+  );
 
-export const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
+  const modules = createNnnModules({
+    views: lazyViews as Record<string, unknown>,
+    eager: eagerSidecars as Record<string, unknown>,
+  });
+
+  const routes = createNnnRoutes(modules, {
+    routesRoot: "views/vue/pages",
+    verbose: import.meta.env.DEV,
+    silent: false,
+  });
+
+  return createRouter({
+    history: createWebHistory(),
+    routes,
+  });
+};
+
+const createRouterDevelopment = () => {
+  const modules = import.meta.glob(
+    [
+      "/views/vue/pages/**/*.{vue,tsx,jsx,ts,js}",
+      "/views/vue/pages/**/_middleware.ts",
+    ],
+    { eager: true }
+  );
+
+  const routes = createNnnRoutes(modules as Record<string, unknown>, {
+    routesRoot: "/views/vue/pages",
+    verbose: import.meta.env.DEV,
+    silent: false,
+  });
+
+  return createRouter({
+    history: createWebHistory(),
+    routes,
+  });
+};
+
+export const router = isDev
+  ? createRouterDevelopment()
+  : createRouterProduction();

@@ -3,6 +3,7 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
 
+import { disconnectDatabase } from "@/database";
 import { config } from "@be-config";
 
 import { nnnRouterPlugin } from "elysia-nnn-router";
@@ -30,3 +31,19 @@ app.listen(config.port, () => {
   console.log(`Environment: ${config.nodeEnv}`);
   console.log(`Server running on: http://localhost:${config.port}`);
 });
+
+const shutdown = async (signal: string) => {
+  console.log(`${signal} received, shutting down...`);
+
+  try {
+    app.stop();
+    await disconnectDatabase();
+    process.exit(0);
+  } catch (error) {
+    console.error("Shutdown error:", error);
+    process.exit(1);
+  }
+};
+
+process.on("SIGINT", () => void shutdown("SIGINT"));
+process.on("SIGTERM", () => void shutdown("SIGTERM"));

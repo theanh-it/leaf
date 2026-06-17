@@ -1,16 +1,30 @@
-import { prisma } from "@/database";
+import { prisma, disconnectDatabase } from "@/database";
 import { users } from "@/prisma/tables/users";
 
 const main = async () => {
-  try {
-    await prisma.user.createMany({ data: users });
-    console.log("Inserted users");
-  } catch (error) {
-    console.error(error);
-  } finally {
-    await prisma.$disconnect();
-    process.exit(1);
+  for (const user of users) {
+    await prisma.user.upsert({
+      where: { username: user.username },
+      update: {
+        password: user.password,
+        fullname: user.fullname,
+        email: user.email,
+        phone: user.phone,
+        status: user.status,
+        type: user.type,
+      },
+      create: user,
+    });
   }
+
+  console.log(`Seeded ${users.length} user(s)`);
 };
 
-main();
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await disconnectDatabase();
+  });

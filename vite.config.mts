@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { config } from "./config";
 import { visualizer } from "rollup-plugin-visualizer";
+import { vueNnnRouterNamesPlugin } from "vue-nnn-router/vite";
 
 export default defineConfig({
   plugins: [
@@ -12,6 +13,15 @@ export default defineConfig({
       open: false,
       gzipSize: true,
       brotliSize: true,
+    }),
+    vueNnnRouterNamesPlugin({
+      pages: [
+        "views/vue/pages/**/*.{vue,tsx,jsx,ts,js}",
+        "views/vue/pages/**/_middleware.ts",
+        "views/vue/pages/**/_redirect.ts",
+      ],
+      routesRoot: "views/vue/pages",
+      outFile: "views/vue/constants/router-name.ts", // tùy chọn — mặc định
     }),
   ],
   css: {
@@ -33,9 +43,12 @@ export default defineConfig({
     alias: {
       "@": resolve(__dirname, "."),
       "@fe": resolve(__dirname, "views/vue"),
+      "@fe-apis": resolve(__dirname, "views/vue/apis"),
       "@fe-constants": resolve(__dirname, "views/vue/constants"),
+      "@fe-composables": resolve(__dirname, "views/vue/composables"),
       "@fe-helpers": resolve(__dirname, "views/vue/helpers"),
       "@fe-components": resolve(__dirname, "views/vue/components"),
+      "@fe-layouts": resolve(__dirname, "views/vue/layouts"),
       "@fe-plugins": resolve(__dirname, "views/vue/plugins"),
       "@fe-stores": resolve(__dirname, "views/vue/stores"),
       "@fe-routes": resolve(__dirname, "views/vue/routes"),

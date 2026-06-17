@@ -5,6 +5,7 @@ export type User = {
   avatar: string | null;
   email: string | null;
   phone: string | null;
+  address: string | null;
   type: string;
   status: string;
   createdAt: string;

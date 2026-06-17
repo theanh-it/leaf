@@ -17,7 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       // Root
       "@/*": ["./*"],
@@ -35,9 +35,12 @@
       "@be-engines/*": ["./engines/*"],
       // Frontend aliases
       "@fe/*": ["./views/vue/*"],
+      "@fe-apis/*": ["./views/vue/apis/*"],
       "@fe-constants/*": ["./views/vue/constants/*"],
+      "@fe-composables/*": ["./views/vue/composables/*"],
       "@fe-helpers/*": ["./views/vue/helpers/*"],
       "@fe-components/*": ["./views/vue/components/*"],
+      "@fe-layouts/*": ["./views/vue/layouts/*"],
       "@fe-plugins/*": ["./views/vue/plugins/*"],
       "@fe-stores/*": ["./views/vue/stores/*"],
       "@fe-routes/*": ["./views/vue/routes/*"],
@@ -49,15 +52,9 @@
     "types": ["bun-types", "vue", "elysia", "vite/client"]
   },
   "include": [
-    "server.ts",
-    "routes/**/*.ts",
-    "services/**/*.ts",
-    "src/**/*.ts",
-    "views/vue/**/*.ts",
-    "views/vue/**/*.vue",
-    "plugins/**/*.ts",
-    "types/**/*.d.ts",
-    "prisma/**/*.ts"
+    "**/*.ts",
+    "**/*.vue",
+    "**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
