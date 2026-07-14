@@ -1,22 +1,8 @@
 <!-- prettier-ignore -->
 @extends('layouts.app')
-@section('title', 'About default - Leaf App') 
+@section('title')
+{{ title }}
+@endsection
 @section('content')
-<div id="app">
-  <h1>Về chúng tôi</h1>
-  <p>Đây là trang About sử dụng Blade template engine</p>
-
-  <div class="info">
-    <h2>Leaf Framework</h2>
-    <p>Framework hiện đại với Elysia, Bun và Vue 3</p>
-
-    <h3>Tính năng</h3>
-    <ul>
-      <li>⚡ Nhanh chóng với Bun runtime</li>
-      <li>🎨 Modern stack: Vue 3 + TypeScript</li>
-      <li>🔍 SEO friendly với SSR</li>
-      <li>🌿 Blade template engine</li>
-    </ul>
-  </div>
-</div>
+<h1>About</h1>
 @endsection

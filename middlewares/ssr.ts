@@ -11,7 +11,7 @@ type ManifestChunk = {
 type ViteManifest = Record<string, ManifestChunk>;
 
 const EMPTY_ASSETS: ViteAssets = { main: "", css: [], imports: [] };
-const MANIFEST_PATH = join(process.cwd(), "dist/fe/.vite/manifest.json");
+const MANIFEST_PATH = join(process.cwd(), "dist/frontend/.vite/manifest.json");
 const IS_PROD = process.env.NODE_ENV === "production";
 
 const toArray = <T>(v: T | T[] | undefined): T[] =>

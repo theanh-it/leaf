@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
@@ -21,7 +20,7 @@ app.use(cors(config.cors));
 // Blade plugin - template engine giống Laravel Blade
 app.use(bladePlugin(config.blade));
 
-// static
+// static - frontend dist (SPA)
 app.use(staticPlugin(config.static.dist));
 
 // Routes

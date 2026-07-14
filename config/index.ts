@@ -3,7 +3,7 @@ import path from "path";
 export const config = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || "development",
-  apiPetMe: process.env.VITE_API_URL || "http://localhost:5000",
+  apiUrl: process.env.VITE_API_URL || "http://localhost:5000",
   apiImage:
     process.env.VITE_API_URL_IMAGE || "http://localhost:5000/files/images",
   serve: {
@@ -25,14 +25,12 @@ export const config = {
     minify: process.env.NODE_ENV === "production",
   },
   static: {
+    // Public assets (fonts, images, etc.) — phục vụ file có đuôi
     dist: {
-      assets: "dist/fe",
+      assets: "dist/frontend",
       prefix: "/",
+      alwaysStatic: true,
     },
-    // public: {
-    //   assets: "public",
-    //   prefix: "/",
-    // },
   },
   routes: [
     {

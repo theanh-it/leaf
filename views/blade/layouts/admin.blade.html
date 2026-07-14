@@ -5,9 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/reset.css" />
-    <title>@yield('title')</title>
-    @yield('seo')
-    <!-- prettier-ignore -->
+    <title>Admin</title>
     @foreach(vite.css as cssFile)
     <link rel="stylesheet" crossorigin href="{{ cssFile }}" />
     @endforeach @foreach(vite.imports as importFile)
@@ -16,11 +14,6 @@
     <script type="module" crossorigin src="{{ vite.main }}"></script>
   </head>
   <body>
-    <div id="app">
-      <style>.ssr{display: none;}</style>
-      @include('partials.header')
-      <main class="ssr">@yield('content')</main>
-      @include('partials.footer')
-    </div>
+    <div id="app"></div>
   </body>
 </html>

@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     vue(),
     visualizer({
-      filename: "dist/fe/stats.html",
+      filename: "dist/stats.html",
       open: false,
       gzipSize: true,
       brotliSize: true,
@@ -64,10 +64,9 @@ export default defineConfig({
   },
   publicDir: "public",
   build: {
-    outDir: "dist/fe",
+    outDir: "dist/frontend",
     manifest: true,
     emptyOutDir: true,
-    //minify: "terser",
     terserOptions: {
       compress: {
         drop_console: true,
