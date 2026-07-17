@@ -43,7 +43,7 @@
     "heic2any": "^0.0.4",
     "jsonwebtoken": "^9.0.3",
     "ky": "^2.0.2",
-    "leaf-blade": "^0.0.2",
+    "leaf-blade": "^0.0.3",
     "leaf-seo": "^0.0.1",
     "module-alias": "^2.2.3",
     "parse-sse": "^0.1.0",
@@ -54,7 +54,7 @@
     "slug": "^11.0.1",
     "uid": "^2.0.2",
     "v-wave": "^3.0.4",
-    "vue-nnn-router": "^0.0.3",
+    "vue-nnn-router": "^0.0.4",
     "vue-router": "^4.6.4",
     "zod": "^4.4.3"
   },
