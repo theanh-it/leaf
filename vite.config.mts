@@ -3,7 +3,10 @@ import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { config } from "./config";
 import { visualizer } from "rollup-plugin-visualizer";
-import { vueNnnRouterNamesPlugin } from "vue-nnn-router/vite";
+import {
+  vueNnnRouterNamesPlugin,
+  vueNnnRouterScrollPlugin,
+} from "vue-nnn-router/vite";
 
 export default defineConfig({
   plugins: [
@@ -23,18 +26,16 @@ export default defineConfig({
       routesRoot: "views/vue/pages",
       outFile: "views/vue/constants/router-name.ts", // tùy chọn — mặc định
     }),
+    vueNnnRouterScrollPlugin({
+      pages: ["views/vue/pages/**/*.{vue,tsx,jsx}"],
+      outFile: "views/vue/constants/router-scroll.ts", // default
+    }),
   ],
   css: {
     preprocessorOptions: {
       scss: {
-        // Modern Sass 3 syntax - tự động inject vào mọi SCSS file
-        // Sử dụng @use với index file để forward tất cả variables và mixins
-        additionalData: `
-          @use "${resolve(__dirname, "views/vue/styles/main.scss")}" as *;
-        `,
-        // Suppress deprecation warnings
+        additionalData: `@use "${resolve(__dirname, "views/vue/styles/main.scss")}" as *;`,
         silenceDeprecations: ["legacy-js-api"],
-        // Sử dụng modern Sass API
         api: "modern-compiler",
       },
     },

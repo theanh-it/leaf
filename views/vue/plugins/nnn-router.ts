@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { createNnnRoutes, createNnnModules } from "vue-nnn-router";
+import {
+  createNnnRoutes,
+  createNnnModules,
+  createNnnScrollBehavior,
+} from "vue-nnn-router";
 
 const isDev = import.meta.env.DEV;
 
@@ -24,6 +28,7 @@ const createRouterProduction = () => {
   return createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior: createNnnScrollBehavior({ smooth: true }),
   });
 };
 
@@ -45,6 +50,7 @@ const createRouterDevelopment = () => {
   return createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior: createNnnScrollBehavior({ smooth: true }),
   });
 };
 
