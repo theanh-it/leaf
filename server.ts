@@ -1,3 +1,5 @@
+import "@/cron-jobs";
+
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
