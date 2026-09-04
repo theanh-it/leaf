@@ -34,31 +34,14 @@
       "@be-services/*": ["./services/*"],
       "@be-engines/*": ["./engines/*"],
       // Frontend aliases
-      "@fe/*": ["./views/vue/*"],
-      "@fe-apis/*": ["./views/vue/apis/*"],
-      "@fe-constants/*": ["./views/vue/constants/*"],
-      "@fe-composables/*": ["./views/vue/composables/*"],
-      "@fe-helpers/*": ["./views/vue/helpers/*"],
-      "@fe-components/*": ["./views/vue/components/*"],
-      "@fe-layouts/*": ["./views/vue/layouts/*"],
-      "@fe-plugins/*": ["./views/vue/plugins/*"],
-      "@fe-stores/*": ["./views/vue/stores/*"],
-      "@fe-routes/*": ["./views/vue/routes/*"],
-      "@fe-pages/*": ["./views/vue/pages/*"],
-      "@fe-utils/*": ["./views/vue/utils/*"],
-      "@fe-types/*": ["./views/vue/types/*"],
+      "@fe-public/*": ["./views/vue-public/*"],
+      "@fe-admin/*": ["./views/vue-admin/*"],
+      "@fe-member/*": ["./views/vue-member/*"],
+      "@fe-shared/*": ["./views/vue-shared/*"],
       "@fe-assets/*": ["./public/*"]
     },
     "types": ["bun-types", "vue", "elysia", "vite/client"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.vue",
-    "**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "public",
-    "dist"
-  ]
+  "include": ["**/*.ts", "**/*.vue", "**/*.d.ts"],
+  "exclude": ["node_modules", "public", "dist"]
 }

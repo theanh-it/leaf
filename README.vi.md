@@ -18,13 +18,13 @@ Leaf là starter full-stack chạy trên **Bun + Elysia (backend)** và **Vue 3 
 
 - **Chạy native trên Bun** — cold-start nhanh, thực thi TS trực tiếp, dùng `Bun.file()` cho I/O.
 - **Elysia v1.4** với `Context` được type-safe.
-- **Routing theo file** cho cả server (`routes/**`) và client (`views/vue/pages/**`).
+- **Routing theo file** cho cả server (`routes/**`) và từng ứng dụng Vue (`views/vue-*/pages/**`).
 - **Template Blade** (`@extends`, `@section`, `@yield`, `@include`, `@foreach`) cho phần SSR.
 - **Vite 5** cho frontend Vue, tự động inject SCSS variables/mixins.
 - **SEO sẵn sàng**: meta động, Open Graph, Twitter Cards, JSON-LD, `/sitemap.xml`, `/robots.txt` (qua [`leaf-seo`](https://www.npmjs.com/package/leaf-seo)).
 - **Prisma 7** (PostgreSQL) với `@prisma/adapter-pg`.
 - **Middleware SSR thông minh** đọc Vite manifest và inject asset đã hash vào layout Blade (cache ở production, single-flight loader).
-- **TypeScript strict** với hệ alias đầy đủ cho cả backend (`@be-*`) và frontend (`@fe-*`).
+- **TypeScript strict** với alias riêng cho backend (`@be-*`) và từng frontend (`@fe-public`, `@fe-admin`, `@fe-shared`).
 
 ## Stack công nghệ
 
@@ -73,13 +73,22 @@ Leaf là starter full-stack chạy trên **Bun + Elysia (backend)** và **Vue 3 
 │   │   ├── layouts/app.blade.html
 │   │   ├── partials/{header,footer}.blade.html
 │   │   └── {home,about,post,common}.blade.html
-│   └── vue/                   # Vue SPA
-│       ├── app.vue
-│       ├── main.ts
-│       ├── pages/             # Route phía client (file-based)
-│       ├── plugins/           # nnn-router, pinia, ky, font-awesome
-│       └── styles/            # SCSS variables, colors, mixins
-├── index.html                 # Entry Vite dev
+│   ├── vue-public/            # Ứng dụng Vue public
+│   │   ├── app.vue
+│   │   ├── main.ts
+│   │   ├── pages/
+│   │   └── plugins/
+│   ├── vue-admin/             # Ứng dụng Vue admin
+│   │   ├── app.vue
+│   │   ├── main.ts
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── stores/
+│   │   └── plugins/
+│   ├── vue-member/            # Dành sẵn cho ứng dụng member
+│   └── vue-shared/            # Code dùng chung có chủ đích và SCSS tokens
+├── index.html                 # Entry Vite public
+├── admin.html                 # Entry Vite admin
 ├── vite.config.mts
 ├── tsconfig.json
 └── prisma.config.ts
@@ -116,7 +125,7 @@ bun run dev
 | `bun run dev` | Chạy song song backend (watch) và Vite build watch |
 | `bun run be` | Chỉ chạy backend dev (auto reload qua nodemon) |
 | `bun run fe` | Vite dev server |
-| `bun run watch` | Vite build watch mode (xuất ra `dist/fe`) |
+| `bun run watch` | Vite build watch mode (xuất ra `dist/frontend`) |
 | `bun run build:fe` | Build FE production |
 | `bun run build:be` | Bundle backend với `bun build` |
 | `bun run build` | `build:fe` + `build:be` |
@@ -161,25 +170,19 @@ Frontend (đồng bộ giữa `vite.config.mts` và `tsconfig.json`):
 
 ```
 @                    → root repo
-@fe/*                → ./views/vue/*
-@fe-pages/*          → ./views/vue/pages/*
-@fe-plugins/*        → ./views/vue/plugins/*
-@fe-components/*     → ./views/vue/components/*
-@fe-stores/*         → ./views/vue/stores/*
-@fe-routes/*         → ./views/vue/routes/*
-@fe-utils/*          → ./views/vue/utils/*
-@fe-helpers/*        → ./views/vue/helpers/*
-@fe-types/*          → ./views/vue/types/*
-@fe-constants/*      → ./views/vue/constants/*
+@fe-public/*         → ./views/vue-public/*
+@fe-admin/*          → ./views/vue-admin/*
+@fe-member/*         → ./views/vue-member/*
+@fe-shared/*         → ./views/vue-shared/*
 @fe-assets/*         → ./public/*
 ```
 
 ## Luồng render
 
 1. **`server.ts`** gắn error handler, CORS, Blade plugin, static, và mount từng folder route khai báo trong `config.routes` qua `nnnRouterPlugin`.
-2. Mỗi request vào `/ssr/*` đi qua `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. Middleware này đọc `dist/fe/.vite/manifest.json` (async, cache ở prod, single-flight), resolve entry chunk + toàn bộ nested imports, và gán `ctx.vite = { main, css[], imports[] }`.
+2. Mỗi request SSR đi qua `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. Middleware đọc `dist/frontend/.vite/manifest.json`, chọn entry admin cho `/login` và `/admin/*`, chọn entry public cho các trang còn lại, rồi gán `ctx.vite = { main, css[], imports[] }`.
 3. **`views/blade/layouts/app.blade.html`** dùng `ctx.vite` để phát ra `<link rel="stylesheet">` cho mỗi CSS chunk, `<link rel="modulepreload">` cho mỗi JS chunk import, và `<script type="module">` cho entry hydrate.
-4. **`views/vue/main.ts`** khởi tạo Vue 3 với Vue Router, Pinia, `v-wave`, `Notifications`, FontAwesome. `views/vue/plugins/nnn-router.ts` build route từ `views/vue/pages/**` qua `import.meta.glob`.
+4. **`views/vue-public/main.ts`** và **`views/vue-admin/main.ts`** khởi tạo hai ứng dụng Vue độc lập. Mỗi router chỉ quét cây `pages/**` của chính nó nên public không tải logic ứng dụng admin.
 
 ## SEO
 
@@ -194,7 +197,7 @@ Có sẵn:
 
 - Middleware SSR chỉ đọc Vite manifest **một lần** ở runtime production, sau đó giữ trong memory; các request đầu tiên chạy đồng thời đều dùng chung một promise (single-flight).
 - Blade engine cache template đã compile ở production (`config.blade.cache = true`).
-- Vite cấu hình manual chunk cho `vue`, `vue-router`, `pinia`, `date-fns`, `ky` và một vài lib lớn, kèm visualizer (`dist/fe/stats.html`).
+- Vite build entry public/admin độc lập và cấu hình manual chunk cho thư viện chung mà không dùng vendor catch-all. Bundle visualizer nằm tại `dist/stats.html`.
 - `optimizeDeps.include: ['vue']` giúp warm pre-bundle.
 
 ## Roadmap

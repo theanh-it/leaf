@@ -18,13 +18,13 @@ Leaf is a full-stack starter built on **Bun + Elysia (backend)** and **Vue 3 + V
 
 - **Bun-native runtime** — fast cold-start, native TS execution, `Bun.file()` I/O.
 - **Elysia v1.4** HTTP framework with typed `Context`.
-- **File-based routes** on the server (`routes/**`) and on the client (`views/vue/pages/**`).
+- **File-based routes** on the server (`routes/**`) and in each Vue app (`views/vue-*/pages/**`).
 - **Blade templates** (`@extends`, `@section`, `@yield`, `@include`, `@foreach`) for SSR shells.
 - **Vite 5** for the Vue frontend, including SCSS auto-injection of variables/mixins.
 - **Built-in SEO**: dynamic meta tags, Open Graph, Twitter Cards, JSON-LD, `/sitemap.xml`, `/robots.txt` (via [`leaf-seo`](https://www.npmjs.com/package/leaf-seo)).
 - **Prisma 7** (PostgreSQL) with `@prisma/adapter-pg`.
 - **Manifest-aware SSR middleware** that injects hashed Vite assets into the Blade layout (cached in production, single-flight loader).
-- **Strict TypeScript** with extensive path aliases for backend (`@be-*`) and frontend (`@fe-*`).
+- **Strict TypeScript** with scoped aliases for backend (`@be-*`) and each frontend app (`@fe-public`, `@fe-admin`, `@fe-shared`).
 
 ## Tech Stack
 
@@ -73,13 +73,22 @@ Leaf is a full-stack starter built on **Bun + Elysia (backend)** and **Vue 3 + V
 │   │   ├── layouts/app.blade.html
 │   │   ├── partials/{header,footer}.blade.html
 │   │   └── {home,about,post,common}.blade.html
-│   └── vue/                   # Vue SPA
-│       ├── app.vue
-│       ├── main.ts
-│       ├── pages/             # File-based client routes
-│       ├── plugins/           # nnn-router, pinia, ky, font-awesome
-│       └── styles/            # SCSS variables, colors, mixins
-├── index.html                 # Vite dev entry
+│   ├── vue-public/            # Public Vue application
+│   │   ├── app.vue
+│   │   ├── main.ts
+│   │   ├── pages/
+│   │   └── plugins/
+│   ├── vue-admin/             # Admin Vue application
+│   │   ├── app.vue
+│   │   ├── main.ts
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── stores/
+│   │   └── plugins/
+│   ├── vue-member/            # Reserved for the member application
+│   └── vue-shared/            # Explicitly shared frontend code and SCSS tokens
+├── index.html                 # Public Vite entry
+├── admin.html                 # Admin Vite entry
 ├── vite.config.mts
 ├── tsconfig.json
 └── prisma.config.ts
@@ -116,7 +125,7 @@ bun run dev
 | `bun run dev` | Runs backend (with watch) and Vite build watcher in parallel |
 | `bun run be` | Backend dev only (auto-reload via nodemon) |
 | `bun run fe` | Vite dev server |
-| `bun run watch` | Vite build in watch mode (produces `dist/fe`) |
+| `bun run watch` | Vite build in watch mode (produces `dist/frontend`) |
 | `bun run build:fe` | One-shot Vite production build |
 | `bun run build:be` | Bundles the server with `bun build` |
 | `bun run build` | `build:fe` + `build:be` |
@@ -161,25 +170,19 @@ Frontend (mirrored in `vite.config.mts` and `tsconfig.json`):
 
 ```
 @                    → repository root
-@fe/*                → ./views/vue/*
-@fe-pages/*          → ./views/vue/pages/*
-@fe-plugins/*        → ./views/vue/plugins/*
-@fe-components/*     → ./views/vue/components/*
-@fe-stores/*         → ./views/vue/stores/*
-@fe-routes/*         → ./views/vue/routes/*
-@fe-utils/*          → ./views/vue/utils/*
-@fe-helpers/*        → ./views/vue/helpers/*
-@fe-types/*          → ./views/vue/types/*
-@fe-constants/*      → ./views/vue/constants/*
+@fe-public/*         → ./views/vue-public/*
+@fe-admin/*          → ./views/vue-admin/*
+@fe-member/*         → ./views/vue-member/*
+@fe-shared/*         → ./views/vue-shared/*
 @fe-assets/*         → ./public/*
 ```
 
 ## How Rendering Works
 
 1. **`server.ts`** mounts the error handler, CORS, Blade plugin, static files, and registers each routes folder declared in `config.routes` through `nnnRouterPlugin`.
-2. **`/ssr/*`** routes pass through `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. The middleware reads `dist/fe/.vite/manifest.json` (async, cached in prod, single-flight), resolves the entry chunk plus all nested imports, and exposes `ctx.vite = { main, css[], imports[] }`.
+2. **`/ssr/*`** routes pass through `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. The middleware reads `dist/frontend/.vite/manifest.json`, selects the admin entry for `/login` and `/admin/*`, selects the public entry for other pages, and exposes `ctx.vite = { main, css[], imports[] }`.
 3. **`views/blade/layouts/app.blade.html`** consumes `ctx.vite`, emitting `<link rel="stylesheet">` for every CSS chunk, `<link rel="modulepreload">` for every imported JS chunk, and the entry `<script type="module">` for hydration.
-4. **`views/vue/main.ts`** boots Vue 3 with Vue Router, Pinia, `v-wave`, `Notifications`, and FontAwesome. `views/vue/plugins/nnn-router.ts` builds routes from `views/vue/pages/**` via `import.meta.glob`.
+4. **`views/vue-public/main.ts`** and **`views/vue-admin/main.ts`** boot independent Vue applications. Each router scans only its own `pages/**` tree, so public requests cannot load admin application logic.
 
 ## SEO
 
@@ -194,7 +197,7 @@ Out of the box:
 
 - The SSR middleware loads the Vite manifest only **once** at runtime in production, then keeps it in memory; concurrent first requests share a single in-flight promise.
 - The Blade engine caches compiled templates in production (`config.blade.cache = true`).
-- Vite is configured with manual chunk splitting for `vue`, `vue-router`, `pinia`, `date-fns`, `ky`, and a few heavier optional libs, plus a bundle visualizer (`dist/fe/stats.html`).
+- Vite builds independent public/admin entries and configures manual chunks for common libraries without a catch-all vendor bundle. The bundle visualizer is written to `dist/stats.html`.
 - `optimizeDeps.include: ['vue']` warms Vite pre-bundling.
 
 ## Roadmap
