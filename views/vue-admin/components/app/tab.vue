@@ -71,17 +71,17 @@ const selectTab = (key: string) => {
   > .header {
     display: flex;
     flex-direction: row;
-    gap: $spacing-sm;
+    gap: $space-sm;
     background: #eee;
-    padding: $spacing-sm;
+    padding: $space-sm;
     padding-bottom: 0px;
   }
   > .header > .item {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: $spacing-md;
-    padding: $spacing-md $spacing-lg;
+    gap: $space-md;
+    padding: $space-md $space-lg;
     border-radius: $radius-md $radius-md 0 0;
     cursor: pointer;
     background: transparent;

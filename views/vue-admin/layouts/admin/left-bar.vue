@@ -97,6 +97,16 @@ onMounted(() => syncGroupFromRoute());
           </span>
           <span class="label">Người dùng</span>
         </RouterLink>
+        <RouterLink
+          :to="{ name: ROUTER_NAME.adminBackup }"
+          class="item nav-item"
+          active-class="-active"
+        >
+          <span class="item-icon">
+            <fa-icon icon="hard-drive" />
+          </span>
+          <span class="label">Backup</span>
+        </RouterLink>
         <animateTransform class="item nav-item" active-class="-active">
           <span class="item-icon">
             <fa-icon icon="credit-card" />
