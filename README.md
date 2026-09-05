@@ -180,7 +180,7 @@ Frontend (mirrored in `vite.config.mts` and `tsconfig.json`):
 ## How Rendering Works
 
 1. **`server.ts`** mounts the error handler, CORS, Blade plugin, static files, and registers each routes folder declared in `config.routes` through `nnnRouterPlugin`.
-2. **`/ssr/*`** routes pass through `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. The middleware reads `dist/frontend/.vite/manifest.json`, selects the admin entry for `/login` and `/admin/*`, selects the public entry for other pages, and exposes `ctx.vite = { main, css[], imports[] }`.
+2. **`/ssr/*`** routes pass through `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. `/login` redirects to `/admin/login`; the middleware selects the admin entry for `/admin` and `/admin/*`, selects the public entry for other pages, and exposes `ctx.vite = { main, css[], imports[] }`.
 3. **`views/blade/layouts/app.blade.html`** consumes `ctx.vite`, emitting `<link rel="stylesheet">` for every CSS chunk, `<link rel="modulepreload">` for every imported JS chunk, and the entry `<script type="module">` for hydration.
 4. **`views/vue-public/main.ts`** and **`views/vue-admin/main.ts`** boot independent Vue applications. Each router scans only its own `pages/**` tree, so public requests cannot load admin application logic.
 

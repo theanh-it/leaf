@@ -4,21 +4,14 @@ import { useAuth } from "@fe-admin/composables/auth";
 
 import { ROUTER_NAME } from "@fe-admin/constants/router-name";
 
-/**
- * Middleware gốc: chạy trước mọi route dưới pages/.
- */
-export default function rootMiddleware(
+export default function adminMiddleware(
   to: RouteLocationNormalized,
   _from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
   const { isLoggedIn } = useAuth();
 
-  console.log("MD isLoggedIn", isLoggedIn.value);
-
-  if (import.meta.env.DEV) {
-    console.log("[demo root _middleware]", to.fullPath);
-  }
+  if (to.name === ROUTER_NAME.adminLogin) return next();
 
   if (!isLoggedIn.value) {
     return next({ name: ROUTER_NAME.adminLogin });

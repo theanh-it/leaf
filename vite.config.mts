@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { config } from "./config";
@@ -10,6 +10,7 @@ import {
 
 export default defineConfig({
   plugins: [
+    frontendEntryFallbackPlugin(),
     vue(),
     visualizer({
       filename: "dist/stats.html",
@@ -37,6 +38,7 @@ export default defineConfig({
         "views/vue-admin/pages/**/_redirect.ts",
       ],
       routesRoot: "views/vue-admin/pages",
+      prefix: "/admin",
       outFile: "views/vue-admin/constants/router-name.ts",
     }),
     vueNnnRouterScrollPlugin({
@@ -119,3 +121,34 @@ export default defineConfig({
     port: config.vite.devPort,
   },
 });
+
+function frontendEntryFallbackPlugin(): Plugin {
+  return {
+    name: "frontend-entry-fallback",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (!isHtmlNavigation(req)) return next();
+
+        const url = new URL(req.url!, "http://vite.local");
+
+        if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+          req.url = `/admin.html${url.search}`;
+        }
+
+        next();
+      });
+    },
+  };
+}
+
+function isHtmlNavigation(req: {
+  method?: string;
+  url?: string;
+  headers: { accept?: string };
+}): boolean {
+  if (!req.url) return false;
+  if (req.method !== "GET" && req.method !== "HEAD") return false;
+
+  return req.headers.accept?.includes("text/html") ?? false;
+}

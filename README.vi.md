@@ -180,7 +180,7 @@ Frontend (đồng bộ giữa `vite.config.mts` và `tsconfig.json`):
 ## Luồng render
 
 1. **`server.ts`** gắn error handler, CORS, Blade plugin, static, và mount từng folder route khai báo trong `config.routes` qua `nnnRouterPlugin`.
-2. Mỗi request SSR đi qua `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. Middleware đọc `dist/frontend/.vite/manifest.json`, chọn entry admin cho `/login` và `/admin/*`, chọn entry public cho các trang còn lại, rồi gán `ctx.vite = { main, css[], imports[] }`.
+2. Mỗi request SSR đi qua `routes/ssr/_middleware.ts` → `middlewares/ssr.ts`. `/login` redirect sang `/admin/login`; middleware chọn entry admin cho `/admin` và `/admin/*`, chọn entry public cho các trang còn lại, rồi gán `ctx.vite = { main, css[], imports[] }`.
 3. **`views/blade/layouts/app.blade.html`** dùng `ctx.vite` để phát ra `<link rel="stylesheet">` cho mỗi CSS chunk, `<link rel="modulepreload">` cho mỗi JS chunk import, và `<script type="module">` cho entry hydrate.
 4. **`views/vue-public/main.ts`** và **`views/vue-admin/main.ts`** khởi tạo hai ứng dụng Vue độc lập. Mỗi router chỉ quét cây `pages/**` của chính nó nên public không tải logic ứng dụng admin.
 

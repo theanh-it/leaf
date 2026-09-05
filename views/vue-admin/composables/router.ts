@@ -15,9 +15,7 @@ export const useAppRouter = () => {
   const goToPath = (path: string, query?: Record<string, any>) =>
     router.push({ path, query });
 
-  const goToHome = (query?: Record<string, any>) =>
-    router.push({ name: ROUTER_NAME.home, query });
-  const goToLogin = () => router.push({ name: ROUTER_NAME.login });
+  const goToLogin = () => router.push({ name: ROUTER_NAME.adminLogin });
   const goToDashboard = () => router.push({ name: ROUTER_NAME.adminDashboard });
 
   const goToUsers = () => router.push({ name: ROUTER_NAME.adminUsers });
@@ -31,7 +29,6 @@ export const useAppRouter = () => {
     goToBack,
     goToName,
     goToPath,
-    goToHome,
     goToLogin,
     goToDashboard,
     goToUsers,

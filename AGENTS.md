@@ -439,7 +439,7 @@ export default [ssrMiddleware];
 ```
 
 - Production: cache manifest; Development: đọc mới mỗi request
-- `/login`, `/admin` và `/admin/*` dùng entry admin; route còn lại dùng entry public
+- `/login` redirect sang `/admin/login`; `/admin` và `/admin/*` dùng entry admin; route còn lại dùng entry public
 - Blade layout dùng `{{ vite.main }}`, `{{ vite.css }}`, `{{ vite.imports }}`
 
 ---
@@ -458,12 +458,13 @@ Mỗi Vue app có router độc lập, sinh từ `views/vue-[role]/pages/`. Khô
 
 Cấu trúc admin trong `views/vue-admin/pages/`:
 
-```
-pages/admin/
-├── _layout.vue          ← Bọc AdminLayout
-├── _middleware.ts       ← Kiểm tra đăng nhập
+```text
+pages/
+├── _layout.vue          ← Login dùng RouterView trực tiếp, page khác bọc AdminLayout
+├── _middleware.ts       ← Bỏ qua /admin/login, kiểm tra đăng nhập cho page khác
 ├── _redirect.ts         ← /admin → /admin/dashboard
 ├── dashboard.vue        ← /admin/dashboard
+├── login.vue            ← /admin/login
 └── users/
     ├── index.vue         ← /admin/users
     ├── add.vue           ← /admin/users/add
@@ -474,7 +475,8 @@ pages/admin/
 // _middleware.ts
 export default function (to, from, next) {
   const { isLoggedIn } = useAuth();
-  if (!isLoggedIn.value) return next({ name: "login" });
+  if (to.name === ROUTER_NAME.adminLogin) return next();
+  if (!isLoggedIn.value) return next({ name: ROUTER_NAME.adminLogin });
   next();
 }
 
@@ -483,6 +485,8 @@ export default "dashboard";
 ```
 
 `ROUTER_NAME` được **auto-generate** riêng vào `views/vue-public/constants/router-name.ts` và `views/vue-admin/constants/router-name.ts` — **không chỉnh sửa thủ công**.
+
+Admin router dùng `prefix: "/admin"` trong cả `createNnnRoutes()` và `vueNnnRouterNamesPlugin()`. Không tạo thêm thư mục `pages/admin`, nếu không URL sẽ bị lặp thành `/admin/admin/*`.
 
 ### Vue 3 Composition API (`<script setup lang="ts">`)
 
