@@ -195,3 +195,7 @@ button {
 *{
   box-sizing: border-box;
 }
+
+.ssr {
+  display: none;
+}

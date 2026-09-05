@@ -44,19 +44,25 @@ leaf/
 │   ├── blade/             # Server-side Blade templates (SSR)
 │   │   ├── layouts/       # Layout kế thừa
 │   │   └── partials/      # Header, footer, etc.
-│   └── vue/               # Frontend SPA (Vue 3)
-│       ├── pages/         # File-based pages (vue-nnn-router)
-│       ├── components/    # Vue components
-│       ├── composables/   # Vue composables (useAuth, useModal, etc.)
-│       ├── stores/        # Pinia stores
-│       ├── apis/          # API call functions (ky)
-│       ├── plugins/       # Vue plugins (pinia, router, ky, font-awesome)
-│       ├── layouts/       # Layout components (admin, public)
-│       ├── styles/        # SCSS (variables, mixins, colors, common, main)
-│       ├── constants/     # Frontend constants
-│       ├── helpers/       # Frontend helpers
-│       ├── types/         # Frontend types
-│       └── utils/         # Frontend utilities
+│   ├── vue-public/        # Public Vue app (entry + router độc lập)
+│   │   ├── pages/         # Public file-based pages
+│   │   └── plugins/       # Public-only Vue plugins
+│   ├── vue-admin/         # Admin Vue app (entry + router độc lập)
+│   │   ├── pages/         # Login và admin file-based pages
+│   │   ├── components/    # Admin-only components
+│   │   ├── composables/   # Admin-only composables
+│   │   ├── stores/        # Admin Pinia stores
+│   │   ├── apis/          # Admin API calls
+│   │   ├── plugins/       # Admin plugins
+│   │   ├── layouts/       # Admin layouts
+│   │   ├── styles/        # Admin global styles
+│   │   ├── constants/     # Admin constants
+│   │   ├── helpers/       # Admin helpers
+│   │   ├── types/         # Admin types
+│   │   └── utils/         # Admin utilities
+│   ├── vue-member/        # Placeholder cho member app sau này
+│   └── vue-shared/        # Chỉ chứa code/token thực sự dùng chung
+│       └── styles/        # SCSS variables, mixins, colors
 └── public/                # Static assets
 ```
 
@@ -66,26 +72,27 @@ leaf/
 
 Luôn dùng alias khi import. **Tuyệt đối không** dùng relative path `../../`.
 
-| Alias               | Path                        | Usage               |
-| ------------------- | --------------------------- | ------------------- |
-| `@/*`               | `./*`                       | Root                |
-| `@be-config`        | `./config/index`            | Backend config      |
-| `@be-helpers/*`     | `./helpers/*`               | Backend helpers     |
-| `@be-plugins/*`     | `./plugins/*`               | Backend plugins     |
-| `@be-middlewares/*` | `./middlewares/*`           | Backend middlewares |
-| `@be-routes/*`      | `./routes/*`                | Backend routes      |
-| `@fe/*`             | `./views/vue/*`             | Frontend root       |
-| `@fe-apis/*`        | `./views/vue/apis/*`        | API calls           |
-| `@fe-stores/*`      | `./views/vue/stores/*`      | Pinia stores        |
-| `@fe-composables/*` | `./views/vue/composables/*` | Composables         |
-| `@fe-components/*`  | `./views/vue/components/*`  | Components          |
-| `@fe-pages/*`       | `./views/vue/pages/*`       | Pages               |
-| `@fe-layouts/*`     | `./views/vue/layouts/*`     | Layouts             |
-| `@fe-plugins/*`     | `./views/vue/plugins/*`     | Vue plugins         |
-| `@fe-helpers/*`     | `./views/vue/helpers/*`     | FE helpers          |
-| `@fe-constants/*`   | `./views/vue/constants/*`   | FE constants        |
-| `@fe-types/*`       | `./views/vue/types/*`       | FE types            |
-| `@fe-utils/*`       | `./views/vue/utils/*`       | FE utils            |
+| Alias               | Path                    | Usage                |
+| ------------------- | ----------------------- | -------------------- |
+| `@/*`               | `./*`                   | Root                 |
+| `@be-config`        | `./config/index`        | Backend config       |
+| `@be-helpers/*`     | `./helpers/*`           | Backend helpers      |
+| `@be-plugins/*`     | `./plugins/*`           | Backend plugins      |
+| `@be-middlewares/*` | `./middlewares/*`       | Backend middlewares  |
+| `@be-routes/*`      | `./routes/*`            | Backend routes       |
+| `@fe-public/*`      | `./views/vue-public/*`  | Public Vue app       |
+| `@fe-admin/*`       | `./views/vue-admin/*`   | Admin Vue app        |
+| `@fe-member/*`      | `./views/vue-member/*`  | Member Vue app       |
+| `@fe-shared/*`      | `./views/vue-shared/*`  | Shared frontend code |
+| `@fe-assets/*`      | `./public/*`            | Static public assets |
+
+### Frontend isolation
+
+- `vue-public`, `vue-admin` và `vue-member` là các ứng dụng Vue độc lập, mỗi app có `main.ts`, router và page tree riêng.
+- Không import trực tiếp từ app này sang app khác. Code dùng chung phải chuyển vào `vue-shared` và import qua `@fe-shared/*`.
+- Chỉ đưa code thật sự dùng bởi ít nhất hai app vào `vue-shared`; business logic theo role phải nằm trong app tương ứng.
+- Khi thêm frontend role mới, phải thêm Vite entry, router-name/scroll plugin và mapping entry trong `middlewares/ssr.ts`.
+- Không dùng manual chunk catch-all cho toàn bộ `node_modules`, vì có thể kéo dependency riêng của admin vào lượt tải public.
 
 ---
 
@@ -432,6 +439,7 @@ export default [ssrMiddleware];
 ```
 
 - Production: cache manifest; Development: đọc mới mỗi request
+- `/login` redirect sang `/admin/login`; `/admin` và `/admin/*` dùng entry admin; route còn lại dùng entry public
 - Blade layout dùng `{{ vite.main }}`, `{{ vite.css }}`, `{{ vite.imports }}`
 
 ---
@@ -440,7 +448,7 @@ export default [ssrMiddleware];
 
 ### Vue File-based Routing (`vue-nnn-router`)
 
-Router được sinh tự động từ `views/vue/pages/`. Các file đặc biệt:
+Mỗi Vue app có router độc lập, sinh từ `views/vue-[role]/pages/`. Không quét page của app khác. Các file đặc biệt:
 
 | File             | Vai trò                    | Ví dụ                        |
 | ---------------- | -------------------------- | ---------------------------- |
@@ -448,14 +456,15 @@ Router được sinh tự động từ `views/vue/pages/`. Các file đặc bi�
 | `_middleware.ts` | Navigation guard           | Kiểm tra `isLoggedIn`        |
 | `_redirect.ts`   | Redirect tự động           | `export default "dashboard"` |
 
-Cấu trúc admin:
+Cấu trúc admin trong `views/vue-admin/pages/`:
 
-```
-pages/admin/
-├── _layout.vue          ← Bọc AdminLayout
-├── _middleware.ts       ← Kiểm tra đăng nhập
+```text
+pages/
+├── _layout.vue          ← Login dùng RouterView trực tiếp, page khác bọc AdminLayout
+├── _middleware.ts       ← Bỏ qua /admin/login, kiểm tra đăng nhập cho page khác
 ├── _redirect.ts         ← /admin → /admin/dashboard
 ├── dashboard.vue        ← /admin/dashboard
+├── login.vue            ← /admin/login
 └── users/
     ├── index.vue         ← /admin/users
     ├── add.vue           ← /admin/users/add
@@ -466,7 +475,8 @@ pages/admin/
 // _middleware.ts
 export default function (to, from, next) {
   const { isLoggedIn } = useAuth();
-  if (!isLoggedIn.value) return next({ name: "login" });
+  if (to.name === ROUTER_NAME.adminLogin) return next();
+  if (!isLoggedIn.value) return next({ name: ROUTER_NAME.adminLogin });
   next();
 }
 
@@ -474,14 +484,16 @@ export default function (to, from, next) {
 export default "dashboard";
 ```
 
-`ROUTER_NAME` được **auto-generate** vào `views/vue/constants/router-name.ts` — **không chỉnh sửa thủ công**.
+`ROUTER_NAME` được **auto-generate** riêng vào `views/vue-public/constants/router-name.ts` và `views/vue-admin/constants/router-name.ts` — **không chỉnh sửa thủ công**.
+
+Admin router dùng `prefix: "/admin"` trong cả `createNnnRoutes()` và `vueNnnRouterNamesPlugin()`. Không tạo thêm thư mục `pages/admin`, nếu không URL sẽ bị lặp thành `/admin/admin/*`.
 
 ### Vue 3 Composition API (`<script setup lang="ts">`)
 
 ```vue
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useAuth } from "@fe-composables/auth";
+import { useAuth } from "@fe-admin/composables/auth";
 
 const { user, isLoggedIn } = useAuth();
 const loading = ref(false);
@@ -520,7 +532,7 @@ Composables trong `composables/` bọc Pinia stores với `storeToRefs`:
 
 ```typescript
 import { storeToRefs } from "pinia";
-import { useAuthStore } from "@fe-stores/auth";
+import { useAuthStore } from "@fe-admin/stores/auth";
 
 export const useAuth = () => {
   const authStore = useAuthStore();
@@ -570,8 +582,8 @@ Dùng composable `useValidate` với Vuelidate + `validate-rule.ts`:
 
 ```typescript
 import { ref, computed } from "vue";
-import { useValidate } from "@fe-composables/validate";
-import { requiredRule, emailRule } from "@fe-helpers/validate-rule";
+import { useValidate } from "@fe-admin/composables/validate";
+import { requiredRule, emailRule } from "@fe-admin/helpers/validate-rule";
 
 const form = ref({ username: "", email: "" });
 const rules = computed(() => ({
@@ -590,10 +602,10 @@ setApiErrors({ email: "users.emailAlreadyExists" }); // Tự map qua API_ERROR_M
 
 ### API calls
 
-API calls trong `apis/` dùng `ky` wrapper từ `@fe-plugins/ky`. Wrapper tự động gắn `Authorization: Bearer <token>` header và parse JSON response:
+API calls trong `apis/` dùng `ky` wrapper từ `@fe-admin/plugins/ky`. Wrapper tự động gắn `Authorization: Bearer <token>` header và parse JSON response:
 
 ```typescript
-import { api } from "@fe-plugins/ky";
+import { api } from "@fe-admin/plugins/ky";
 
 export const list = () => api.get<User[]>("users");
 export const getById = (id: string) => api.get<User>(`users/${id}`);
@@ -612,7 +624,7 @@ type ResponseApi<T> = { status: string; message: string; result: T };
 
 ### API Error Mapping (Frontend)
 
-Backend trả về error code (vd: `"users.emailAlreadyExists"`). Frontend map sang tiếng Việt qua `API_ERROR_MESSAGE` trong `views/vue/constants/api-message.ts`:
+Backend trả về error code (vd: `"users.emailAlreadyExists"`). Admin frontend map sang tiếng Việt qua `API_ERROR_MESSAGE` trong `views/vue-admin/constants/api-message.ts`:
 
 ```typescript
 export const API_ERROR_MESSAGE: Record<string, string> = {
@@ -629,7 +641,7 @@ export const API_ERROR_MESSAGE: Record<string, string> = {
 
 ### FontAwesome Icons
 
-Tất cả icon phải được khai báo tập trung tại **`views/vue/plugins/font-awesome.ts`** — không import rải rác ở component:
+Icon phải được khai báo tập trung theo từng app, ví dụ **`views/vue-admin/plugins/font-awesome.ts`** — không import rải rác ở component và không dùng chung registry giữa các app:
 
 ```typescript
 // 1. Import icon

@@ -22,11 +22,13 @@ app.use(cors(config.cors));
 // Blade plugin - template engine giống Laravel Blade
 app.use(bladePlugin(config.blade));
 
-// static - frontend dist (SPA)
-app.use(staticPlugin(config.static.dist));
-
 // Routes
 for (const route of config.routes) app.use(nnnRouterPlugin(route));
+
+// Static public files và Vite build assets được đăng ký sau SSR routes để
+// các file root như /reset.css không bị route động /:name ghi đè.
+app.use(await staticPlugin(config.static.public));
+app.use(await staticPlugin(config.static.dist));
 
 app.listen(config.port, () => {
   console.log(`Environment: ${config.nodeEnv}`);

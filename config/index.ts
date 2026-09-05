@@ -1,5 +1,13 @@
 import path from "path";
 
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+const getPositiveInteger = (value: string | undefined, fallback: number) => {
+  const parsed = Number(value);
+
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
 export const config = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || "development",
@@ -9,6 +17,27 @@ export const config = {
   serve: {
     maxRequestBodySize: 100 * 1024 * 1024 * 1024, // 100GB
     idleTimeout: 255,
+  },
+  upload: {
+    root: process.env.UPLOAD_ROOT
+      ? path.resolve(process.env.UPLOAD_ROOT)
+      : path.join(process.cwd(), "files"),
+    image: {
+      folder: "images",
+      maxFileSize: getPositiveInteger(
+        process.env.UPLOAD_IMAGE_MAX_FILE_SIZE,
+        10 * 1024 * 1024
+      ),
+      maxFiles: getPositiveInteger(process.env.UPLOAD_IMAGE_MAX_FILES, 10),
+      concurrency: getPositiveInteger(process.env.UPLOAD_IMAGE_CONCURRENCY, 4),
+      mimeTypes: [
+        "image/avif",
+        "image/gif",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+      ],
+    },
   },
   cors: {
     origin: (process.env.CORS_ORIGIN?.split(",") || [
@@ -25,11 +54,20 @@ export const config = {
     minify: process.env.NODE_ENV === "production",
   },
   static: {
-    // Public assets (fonts, images, etc.) — phục vụ file có đuôi
-    dist: {
-      assets: "dist/frontend",
+    // Public assets có tên ổn định, phục vụ trực tiếp từ source.
+    public: {
+      assets: "public",
       prefix: "/",
       alwaysStatic: true,
+      noCache: false,
+      maxAge: IS_PRODUCTION ? 86400 : 0,
+    },
+    // Vite assets có hash mới sau mỗi lần build.
+    dist: {
+      assets: "dist/frontend/assets",
+      prefix: "/assets",
+      alwaysStatic: IS_PRODUCTION,
+      noCache: !IS_PRODUCTION,
     },
   },
   routes: [

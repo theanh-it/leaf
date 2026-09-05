@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { config } from "./config";
@@ -10,6 +10,7 @@ import {
 
 export default defineConfig({
   plugins: [
+    frontendEntryFallbackPlugin(),
     vue(),
     visualizer({
       filename: "dist/stats.html",
@@ -19,22 +20,36 @@ export default defineConfig({
     }),
     vueNnnRouterNamesPlugin({
       pages: [
-        "views/vue/pages/**/*.{vue,tsx,jsx,ts,js}",
-        "views/vue/pages/**/_middleware.ts",
-        "views/vue/pages/**/_redirect.ts",
+        "views/vue-public/pages/**/*.{vue,tsx,jsx,ts,js}",
+        "views/vue-public/pages/**/_middleware.ts",
+        "views/vue-public/pages/**/_redirect.ts",
       ],
-      routesRoot: "views/vue/pages",
-      outFile: "views/vue/constants/router-name.ts", // tùy chọn — mặc định
+      routesRoot: "views/vue-public/pages",
+      outFile: "views/vue-public/constants/router-name.ts",
     }),
     vueNnnRouterScrollPlugin({
-      pages: ["views/vue/pages/**/*.{vue,tsx,jsx}"],
-      outFile: "views/vue/constants/router-scroll.ts", // default
+      pages: ["views/vue-public/pages/**/*.{vue,tsx,jsx}"],
+      outFile: "views/vue-public/constants/router-scroll.ts",
+    }),
+    vueNnnRouterNamesPlugin({
+      pages: [
+        "views/vue-admin/pages/**/*.{vue,tsx,jsx,ts,js}",
+        "views/vue-admin/pages/**/_middleware.ts",
+        "views/vue-admin/pages/**/_redirect.ts",
+      ],
+      routesRoot: "views/vue-admin/pages",
+      prefix: "/admin",
+      outFile: "views/vue-admin/constants/router-name.ts",
+    }),
+    vueNnnRouterScrollPlugin({
+      pages: ["views/vue-admin/pages/**/*.{vue,tsx,jsx}"],
+      outFile: "views/vue-admin/constants/router-scroll.ts",
     }),
   ],
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "${resolve(__dirname, "views/vue/styles/main.scss")}" as *;`,
+        additionalData: `@use "${resolve(__dirname, "views/vue-shared/styles/main.scss")}" as *;`,
         silenceDeprecations: ["legacy-js-api"],
         api: "modern-compiler",
       },
@@ -43,19 +58,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "."),
-      "@fe": resolve(__dirname, "views/vue"),
-      "@fe-apis": resolve(__dirname, "views/vue/apis"),
-      "@fe-constants": resolve(__dirname, "views/vue/constants"),
-      "@fe-composables": resolve(__dirname, "views/vue/composables"),
-      "@fe-helpers": resolve(__dirname, "views/vue/helpers"),
-      "@fe-components": resolve(__dirname, "views/vue/components"),
-      "@fe-layouts": resolve(__dirname, "views/vue/layouts"),
-      "@fe-plugins": resolve(__dirname, "views/vue/plugins"),
-      "@fe-stores": resolve(__dirname, "views/vue/stores"),
-      "@fe-routes": resolve(__dirname, "views/vue/routes"),
-      "@fe-pages": resolve(__dirname, "views/vue/pages"),
-      "@fe-utils": resolve(__dirname, "views/vue/utils"),
-      "@fe-types": resolve(__dirname, "views/vue/types"),
+      "@fe-public": resolve(__dirname, "views/vue-public"),
+      "@fe-admin": resolve(__dirname, "views/vue-admin"),
+      "@fe-member": resolve(__dirname, "views/vue-member"),
+      "@fe-shared": resolve(__dirname, "views/vue-shared"),
       "@fe-assets": resolve(__dirname, "public"),
     },
   },
@@ -74,7 +80,10 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      input: resolve(__dirname, "index.html"),
+      input: {
+        public: resolve(__dirname, "index.html"),
+        admin: resolve(__dirname, "admin.html"),
+      },
       output: {
         manualChunks(id) {
           if (id.includes("/node_modules/vue/")) return "vue";
@@ -101,8 +110,6 @@ export default defineConfig({
             return "pica-resize-image";
           // heic2any
           if (id.includes("/node_modules/heic2any/")) return "heic2any";
-
-          if (id.includes("node_modules")) return "vendor";
         },
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash].[ext]",
@@ -114,3 +121,34 @@ export default defineConfig({
     port: config.vite.devPort,
   },
 });
+
+function frontendEntryFallbackPlugin(): Plugin {
+  return {
+    name: "frontend-entry-fallback",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (!isHtmlNavigation(req)) return next();
+
+        const url = new URL(req.url!, "http://vite.local");
+
+        if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+          req.url = `/admin.html${url.search}`;
+        }
+
+        next();
+      });
+    },
+  };
+}
+
+function isHtmlNavigation(req: {
+  method?: string;
+  url?: string;
+  headers: { accept?: string };
+}): boolean {
+  if (!req.url) return false;
+  if (req.method !== "GET" && req.method !== "HEAD") return false;
+
+  return req.headers.accept?.includes("text/html") ?? false;
+}

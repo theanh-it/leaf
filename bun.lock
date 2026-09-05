@@ -21,11 +21,12 @@
         "dotenv": "^17.2.3",
         "elysia": "^1.4.16",
         "elysia-nnn-router": "^0.1.7",
+        "file-type": "^21.1.1",
         "heic2any": "^0.0.4",
         "jsonwebtoken": "^9.0.3",
         "ky": "^2.0.2",
         "leaf-blade": "^1.1.0",
-        "leaf-seo": "^0.0.1",
+        "leaf-seo": "^0.1.0",
         "module-alias": "^2.2.3",
         "parse-sse": "^0.1.0",
         "pica": "^9.0.1",
@@ -35,7 +36,7 @@
         "slug": "^11.0.1",
         "uid": "^2.0.2",
         "v-wave": "^3.0.4",
-        "vue-nnn-router": "^0.0.6",
+        "vue-nnn-router": "^0.0.8",
         "vue-router": "^4.6.4",
         "zod": "^4.4.3",
       },
@@ -554,7 +555,7 @@
 
     "leaf-blade": ["leaf-blade@1.1.0", "", { "dependencies": { "elysia": "^1.4.16", "html-minifier-terser": "^7.2.0" } }, "sha512-GrTwJqCh4cTcsZope/GRGQ2uPAlCq9ey+YVJkpLXCsw0oiDh5YZg+jTwko7oxb7CC5YVPtyDb0xsBvJQbOTFyQ=="],
 
-    "leaf-seo": ["leaf-seo@0.0.1", "", {}, "sha512-0uJZV4dRB1oNvMTPT9BUSL7IssLFsJfYJftPNt8gNIf3P9GbLNfnnvlA1M1Ossj0eGXx/oQYkeKS6I36ff6deQ=="],
+    "leaf-seo": ["leaf-seo@0.1.0", "", {}, "sha512-CPfpXtftnBLF9eWD2JCP4kKP6DMR6vbvm4q7Rz4AWauAw/F2x9Xh5JhThafq17Ryo/FYy+VchqZ9gvLBSHKSOQ=="],
 
     "lodash": ["lodash@4.17.21", "", {}, "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="],
 
@@ -800,7 +801,7 @@
 
     "vue-demi": ["vue-demi@0.13.11", "", { "peerDependencies": { "@vue/composition-api": "^1.0.0-rc.1", "vue": "^3.0.0-0 || ^2.6.0" }, "optionalPeers": ["@vue/composition-api"], "bin": { "vue-demi-fix": "bin/vue-demi-fix.js", "vue-demi-switch": "bin/vue-demi-switch.js" } }, "sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A=="],
 
-    "vue-nnn-router": ["vue-nnn-router@0.0.6", "", { "dependencies": { "tinyglobby": "^0.2.14" }, "peerDependencies": { "vue": "^3.3.0", "vue-router": "^4.2.0 || ^5.0.0" } }, "sha512-fLp1qHVlk6FU3Tb8RawL0qdieBuFttPDlvCsNqVRsH9wxG+e+rqZCBN1QUOpP+DTfh5i+dOBwgjirqXzxK1r4A=="],
+    "vue-nnn-router": ["vue-nnn-router@0.0.8", "", { "dependencies": { "tinyglobby": "^0.2.14" }, "peerDependencies": { "vue": "^3.3.0", "vue-router": "^4.2.0 || ^5.0.0" } }, "sha512-eluavd0jRtTCzyjlSvCRaFr2fBqAgednTlvanMb4Kw0PBeWlTJlvDdifI04Iy3K9MMx51C/hzlG2Lu1E/nyEUw=="],
 
     "vue-router": ["vue-router@4.6.4", "", { "dependencies": { "@vue/devtools-api": "^6.6.4" }, "peerDependencies": { "vue": "^3.5.0" } }, "sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg=="],
 
