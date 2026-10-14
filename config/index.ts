@@ -11,6 +11,9 @@ const getPositiveInteger = (value: string | undefined, fallback: number) => {
 export const config = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || "development",
+  backup: {
+    retentionDays: Number(process.env.BACKUP_RETENTION_DAYS ?? 7),
+  },
   apiUrl: process.env.VITE_API_URL || "http://localhost:5000",
   apiImage:
     process.env.VITE_API_URL_IMAGE || "http://localhost:5000/files/images",

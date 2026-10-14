@@ -17,7 +17,8 @@
     "prisma:generate": "rm -rf node_modules/.prisma/client; bunx prisma generate",
     "prisma:seed": "bun run prisma/seed.ts",
     "prisma:reset": "bunx --bun prisma migrate reset",
-    "backup": "bun run backup/start.ts"
+    "backup": "bun run backup/start.ts",
+    "backup:clear": "bun run backup/clear-backup.ts"
   },
   "keywords": [],
   "author": "",
