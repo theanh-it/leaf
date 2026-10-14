@@ -1,5 +1,6 @@
 import { ref, computed } from "vue";
 import { defineStore } from "pinia";
+import { HTTPError } from "ky";
 
 import { authApi } from "@fe-admin/apis/auth";
 import { meApi } from "@fe-admin/apis/me";
@@ -12,7 +13,7 @@ type LoginBody = {
 };
 
 export const useAuthStore = defineStore("auth", () => {
-  const token = ref<string | null>(null);
+  const token = ref<string | null>(localStorage.getItem("token"));
   const getToken = () => {
     const result = localStorage.getItem("token");
 
@@ -68,6 +69,8 @@ export const useAuthStore = defineStore("auth", () => {
 
       user.value = response.result;
     } catch (error) {
+      // Giữ phiên đăng nhập để có thể theo dõi restore sau khi tải lại trang.
+      if (error instanceof HTTPError && error.response.status === 503) return;
       console.error(error);
       return logout();
     }

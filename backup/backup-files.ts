@@ -13,7 +13,7 @@ const timestamp = () => new Date().toISOString().replace(/[:.]/g, "-");
 const runTar = (
   executable: string,
   sourceDirectory: string,
-  outputPath: string,
+  outputPath: string
 ) =>
   new Promise<void>((resolve, reject) => {
     const child = spawn(
@@ -27,7 +27,11 @@ const runTar = (
         path.dirname(sourceDirectory),
         path.basename(sourceDirectory),
       ],
-      { stdio: ["ignore", "ignore", "pipe"] },
+      {
+        stdio: ["ignore", "ignore", "pipe"],
+        // macOS tar không thêm AppleDouble (._*) vào backup mới.
+        env: { ...process.env, COPYFILE_DISABLE: "1" },
+      }
     );
 
     let stderr = "";
@@ -45,26 +49,24 @@ const runTar = (
 
       const detail = stderr.trim() || `process exited with code ${code}`;
       reject(
-        new Error(
-          `tar failed${signal ? ` (signal ${signal})` : ""}: ${detail}`,
-        ),
+        new Error(`tar failed${signal ? ` (signal ${signal})` : ""}: ${detail}`)
       );
     });
   });
 
 /** Create a gzip-compressed archive of the application's uploaded files. */
 export const backupFiles = async (
-  options: BackupFilesOptions = {},
+  options: BackupFilesOptions = {}
 ): Promise<void> => {
   const sourceDirectory = path.resolve(
     options.sourceDirectory ??
       process.env.FILES_DIRECTORY ??
-      path.join(process.cwd(), "files"),
+      path.join(process.cwd(), "files")
   );
   const outputDirectory = path.resolve(
     options.outputDirectory ??
       process.env.BACKUP_FILES_DIRECTORY ??
-      path.join(process.cwd(), "backup", "files"),
+      path.join(process.cwd(), "backup", "files")
   );
 
   if (
@@ -72,7 +74,7 @@ export const backupFiles = async (
     outputDirectory.startsWith(`${sourceDirectory}${path.sep}`)
   ) {
     throw new Error(
-      "The file backup directory must not be inside the source directory",
+      "The file backup directory must not be inside the source directory"
     );
   }
 
@@ -82,10 +84,7 @@ export const backupFiles = async (
     throw new Error(`Files directory does not exist: ${sourceDirectory}`);
   }
 
-  const outputPath = path.join(
-    outputDirectory,
-    `files-${timestamp()}.tar.gz`,
-  );
+  const outputPath = path.join(outputDirectory, `files-${timestamp()}.tar.gz`);
   const temporaryPath = `${outputPath}.tmp`;
 
   await mkdir(outputDirectory, { recursive: true });
@@ -94,7 +93,7 @@ export const backupFiles = async (
     await runTar(
       options.tarPath ?? process.env.TAR_PATH ?? "tar",
       sourceDirectory,
-      temporaryPath,
+      temporaryPath
     );
     await rename(temporaryPath, outputPath);
     console.log(`[backup] Files saved to ${outputPath}`);

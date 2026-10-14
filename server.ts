@@ -10,11 +10,13 @@ import { config } from "@be-config";
 import { nnnRouterPlugin } from "elysia-nnn-router";
 import { bladePlugin } from "@be-plugins/blade";
 import { errorHandlerPlugin } from "@be-plugins/error-handler";
+import restoreMaintenance from "@be-middlewares/restore-maintenance";
 
 const app = new Elysia({ serve: config.serve });
 
 // Error handling - phải được thêm đầu tiên
 app.use(errorHandlerPlugin());
+app.onBeforeHandle(restoreMaintenance);
 
 // CORS với origins cụ thể
 app.use(cors(config.cors));

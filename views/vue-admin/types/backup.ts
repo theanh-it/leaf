@@ -1,5 +1,7 @@
 export type BackupKind = "database" | "files";
 
+export type { RestoreJob, RestorePhase } from "@/types/backup-restore";
+
 export interface BackupFileInfo {
   name: string;
   kind: BackupKind;

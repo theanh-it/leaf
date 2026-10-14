@@ -10,7 +10,7 @@ export type BackupDatabaseOptions = {
 
 const timestamp = () => new Date().toISOString().replace(/[:.]/g, "-");
 
-const databaseEnvironment = (databaseUrl: string): NodeJS.ProcessEnv => {
+export const databaseEnvironment = (databaseUrl: string): NodeJS.ProcessEnv => {
   let url: URL;
 
   try {

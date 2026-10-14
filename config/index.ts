@@ -13,6 +13,20 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || "development",
   backup: {
     retentionDays: Number(process.env.BACKUP_RETENTION_DAYS ?? 7),
+    restoreMaxFileSize: getPositiveInteger(
+      process.env.BACKUP_RESTORE_MAX_FILE_SIZE,
+      10 * 1024 * 1024 * 1024
+    ),
+    restoreMaxExtractedSize: getPositiveInteger(
+      process.env.BACKUP_RESTORE_MAX_EXTRACTED_SIZE,
+      50 * 1024 * 1024 * 1024
+    ),
+    filesDirectory: path.resolve(process.env.FILES_DIRECTORY ?? "files"),
+    pgRestorePath:
+      process.env.PG_RESTORE_PATH ||
+      (process.env.PG_DUMP_PATH
+        ? path.join(path.dirname(process.env.PG_DUMP_PATH), "pg_restore")
+        : "pg_restore"),
   },
   apiUrl: process.env.VITE_API_URL || "http://localhost:5000",
   apiImage:

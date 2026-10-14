@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { HTTPError } from "ky";
 
 import AdminCard from "@fe-admin/components/app/admin-card.vue";
 import ButtonApp from "@fe-admin/components/app/button.vue";
 import TabApp from "@fe-admin/components/app/tab.vue";
 import BackupList from "@fe-admin/components/backup/list.vue";
+import RestoreModal from "@fe-admin/components/backup/restore-modal.vue";
 import AdminPage from "@fe-admin/components/page/admin.vue";
 
 import { backupsApi } from "@fe-admin/apis/backups";
@@ -25,6 +27,7 @@ const activeTab = ref<BackupTab>("database");
 const downloadingKey = ref<string | null>(null);
 const isLoading = ref(true);
 const backups = ref<BackupOverview>(EMPTY_BACKUPS);
+const isRestoreOpen = ref(false);
 
 const tabs = computed(() => [
   {
@@ -45,7 +48,8 @@ const fetchBackups = async () => {
   try {
     const response = await backupsApi.list();
     backups.value = response.result || EMPTY_BACKUPS;
-  } catch {
+  } catch (error) {
+    if (error instanceof HTTPError && error.response.status === 503) return;
     notifyError("Không thể tải danh sách backup");
   } finally {
     isLoading.value = false;
@@ -92,14 +96,23 @@ const downloadBlob = (blob: Blob, name: string): void => {
           <p class="description">
             Dữ liệu được đọc trực tiếp từ thư mục backup trên máy chủ.
           </p>
-          <ButtonApp
-            size="sm"
-            color="primary"
-            icon="rotate"
-            label="Làm mới"
-            :disabled="isLoading"
-            @click="fetchBackups"
-          />
+          <div class="actions">
+            <ButtonApp
+              size="sm"
+              color="warning"
+              icon="database"
+              label="Khôi phục backup"
+              @click="isRestoreOpen = true"
+            />
+            <ButtonApp
+              size="sm"
+              color="primary"
+              icon="rotate"
+              label="Làm mới"
+              :disabled="isLoading"
+              @click="fetchBackups"
+            />
+          </div>
         </div>
       </template>
 
@@ -121,6 +134,7 @@ const downloadBlob = (blob: Blob, name: string): void => {
       </TabApp>
     </AdminCard>
   </AdminPage>
+  <RestoreModal v-model="isRestoreOpen" @restored="fetchBackups" />
 </template>
 
 <style scoped lang="scss">
@@ -137,6 +151,12 @@ const downloadBlob = (blob: Blob, name: string): void => {
     margin: 0;
     color: $color-text-muted;
     font-size: $font-size-sm;
+  }
+
+  > .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-sm;
   }
 }
 
