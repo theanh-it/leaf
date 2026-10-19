@@ -46,7 +46,7 @@
     "heic2any": "^0.0.4",
     "jsonwebtoken": "^9.0.3",
     "ky": "^2.0.2",
-    "leaf-blade": "^1.1.0",
+    "leaf-blade": "^1.2.0",
     "leaf-seo": "^0.1.0",
     "module-alias": "^2.2.3",
     "parse-sse": "^0.1.0",

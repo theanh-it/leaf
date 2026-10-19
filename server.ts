@@ -11,6 +11,8 @@ import { nnnRouterPlugin } from "elysia-nnn-router";
 import { bladePlugin } from "@be-plugins/blade";
 import { errorHandlerPlugin } from "@be-plugins/error-handler";
 import restoreMaintenance from "@be-middlewares/restore-maintenance";
+import { viewProvider } from "@/providers/view";
+import type { LeafContext } from "@be-types/leaf";
 
 const app = new Elysia({ serve: config.serve });
 
@@ -22,7 +24,7 @@ app.onBeforeHandle(restoreMaintenance);
 app.use(cors(config.cors));
 
 // Blade plugin - template engine giống Laravel Blade
-app.use(bladePlugin(config.blade));
+app.use(bladePlugin<LeafContext>({ ...config.blade, ...viewProvider }));
 
 // Routes
 for (const route of config.routes) app.use(nnnRouterPlugin(route));

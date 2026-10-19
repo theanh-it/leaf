@@ -1,4 +1,5 @@
 import type { Context } from "elysia";
+import type { BladeContextExtensions } from "leaf-blade";
 
 export interface ViteAssets {
   main: string;
@@ -9,9 +10,7 @@ export interface ViteAssets {
 interface LeafContextExtensions {
   vite?: ViteAssets;
   // Blade template engine
-  blade?: {
-    render: (template: string, data?: Record<string, any>) => Promise<string>;
-  };
+  blade?: BladeContextExtensions["blade"];
 }
 
 /**

@@ -25,7 +25,7 @@
         "heic2any": "^0.0.4",
         "jsonwebtoken": "^9.0.3",
         "ky": "^2.0.2",
-        "leaf-blade": "^1.1.0",
+        "leaf-blade": "^1.2.0",
         "leaf-seo": "^0.1.0",
         "module-alias": "^2.2.3",
         "parse-sse": "^0.1.0",
@@ -558,7 +558,7 @@
 
     "ky": ["ky@2.0.2", "", {}, "sha512-/GmXpo9F9W+f8n4Ivr2iH+7h7wL7jLbLKWkMlpflcCRb6kGjBfTlASEXaZ9qUgNTn4VgS0P2pwxxzQ4EM6Ulgg=="],
 
-    "leaf-blade": ["leaf-blade@1.1.0", "", { "dependencies": { "elysia": "^1.4.16", "html-minifier-terser": "^7.2.0" } }, "sha512-GrTwJqCh4cTcsZope/GRGQ2uPAlCq9ey+YVJkpLXCsw0oiDh5YZg+jTwko7oxb7CC5YVPtyDb0xsBvJQbOTFyQ=="],
+    "leaf-blade": ["leaf-blade@1.2.0", "", { "dependencies": { "elysia": "^1.4.16", "html-minifier-terser": "^7.2.0" } }, "sha512-aH6wX37Jxekqe/+e+12Eh7t3mYFVteVeDO11QsNZFwZaXc+HE0/c1I2BdcIwYmL/DJj2CpuYZfzW41zcrvWI+w=="],
 
     "leaf-seo": ["leaf-seo@0.1.0", "", {}, "sha512-CPfpXtftnBLF9eWD2JCP4kKP6DMR6vbvm4q7Rz4AWauAw/F2x9Xh5JhThafq17Ryo/FYy+VchqZ9gvLBSHKSOQ=="],
 
