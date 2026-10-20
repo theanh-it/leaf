@@ -65,7 +65,7 @@
     "tar": "^7.5.22",
     "uid": "^2.0.2",
     "v-wave": "^3.0.4",
-    "vue-nnn-router": "^0.0.8",
+    "vue-nnn-router": "^0.1.1",
     "vue-router": "^4.6.4",
     "zod": "^4.4.3"
   },

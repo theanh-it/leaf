@@ -4,6 +4,7 @@ import { resolve } from "path";
 import { config } from "@be-config";
 import { visualizer } from "rollup-plugin-visualizer";
 import {
+  vueNnnRouterPlugin,
   vueNnnRouterNamesPlugin,
   vueNnnRouterScrollPlugin,
 } from "vue-nnn-router/vite";
@@ -18,32 +19,23 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true,
     }),
+    vueNnnRouterPlugin(),
     vueNnnRouterNamesPlugin({
-      pages: [
-        "views/vue-public/pages/**/*.{vue,tsx,jsx,ts,js}",
-        "views/vue-public/pages/**/_middleware.ts",
-        "views/vue-public/pages/**/_redirect.ts",
-      ],
-      routesRoot: "views/vue-public/pages",
-      outFile: "views/vue-public/constants/router-name.ts",
+      rootPath: "views/vue-public",
+      outFile: "constants/router-name.ts",
     }),
     vueNnnRouterScrollPlugin({
-      pages: ["views/vue-public/pages/**/*.{vue,tsx,jsx}"],
-      outFile: "views/vue-public/constants/router-scroll.ts",
+      rootPath: "views/vue-public",
+      outFile: "constants/router-scroll.ts",
     }),
     vueNnnRouterNamesPlugin({
-      pages: [
-        "views/vue-admin/pages/**/*.{vue,tsx,jsx,ts,js}",
-        "views/vue-admin/pages/**/_middleware.ts",
-        "views/vue-admin/pages/**/_redirect.ts",
-      ],
-      routesRoot: "views/vue-admin/pages",
+      rootPath: "views/vue-admin",
       prefix: "/admin",
-      outFile: "views/vue-admin/constants/router-name.ts",
+      outFile: "constants/router-name.ts",
     }),
     vueNnnRouterScrollPlugin({
-      pages: ["views/vue-admin/pages/**/*.{vue,tsx,jsx}"],
-      outFile: "views/vue-admin/constants/router-scroll.ts",
+      rootPath: "views/vue-admin",
+      outFile: "constants/router-scroll.ts",
     }),
   ],
   css: {
