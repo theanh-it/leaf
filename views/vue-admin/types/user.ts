@@ -11,3 +11,21 @@ export type User = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type UserList = {
+  items: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalRecords: number;
+    totalPages: number;
+  };
+};
+
+export type UserListQuery = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+  status?: string;
+};

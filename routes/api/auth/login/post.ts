@@ -2,85 +2,73 @@ import type { Context } from "elysia";
 import { z } from "zod";
 
 import { prisma } from "@/database";
-
 import { comparePassword } from "@/helpers/password";
 import { validateData } from "@/helpers/request";
 import { createErrorMessage, createSuccessMessage } from "@/helpers/response";
 import { signJWT } from "@/helpers/auth";
-
-import type { BodyJWT } from "@/types";
+import { USER_PUBLIC_SELECT } from "@/helpers/user";
 
 const loginSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-  deviceId: z.string().nullable().optional(),
+  username: z.string().trim().min(1).max(255),
+  password: z
+    .string()
+    .min(1)
+    .max(255)
+    .refine((value) => Buffer.byteLength(value, "utf8") <= 72, {
+      message: "users.passwordTooLong",
+    }),
+  deviceId: z.string().max(255).nullable().optional(),
+  remember: z.boolean().default(false),
 });
 
-type LoginBody = z.infer<typeof loginSchema>;
-
 export default async (context: Context) => {
-  const body = context.body as LoginBody;
-
-  const resultValidate = await validateData(body, loginSchema);
-
-  if (resultValidate.errors) {
-    const errorMessage = createErrorMessage({
-      result: resultValidate.errors,
-      message: "validation.error",
-    });
-
-    return context.status(422, errorMessage);
+  const validation = await validateData(context.body, loginSchema);
+  if (validation.errors) {
+    return context.status(
+      422,
+      createErrorMessage({
+        status: "validation_error",
+        message: "validation.error",
+        result: validation.errors,
+      })
+    );
   }
 
+  const data = validation.output;
   const user = await prisma.user.findFirst({
     where: {
       OR: [
-        { username: body.username },
-        { email: body.username },
-        { phone: body.username },
+        { username: data.username },
+        { email: data.username },
+        { phone: data.username },
       ],
     },
+    select: { ...USER_PUBLIC_SELECT, password: true },
   });
 
-  if (!user) {
-    const errorMessage = createErrorMessage({
-      message: "login.failed",
-      result: {
-        username: "login.usernameNotFound",
-      },
-    });
-
-    return context.status(422, errorMessage);
+  if (!user || !(await comparePassword(data.password, user.password))) {
+    return context.status(
+      401,
+      createErrorMessage({
+        message: "login.failed",
+        result: { password: "login.invalidCredentials" },
+      })
+    );
+  }
+  if (user.status !== "active") {
+    return context.status(
+      403,
+      createErrorMessage({ message: "auth.accountUnavailable" })
+    );
   }
 
-  const isPasswordValid = await comparePassword(body.password, user.password);
-
-  if (!isPasswordValid) {
-    const errorMessage = createErrorMessage({
-      message: "login.failed",
-      result: {
-        password: "login.passwordNotMatch",
-      },
-    });
-
-    return context.status(422, errorMessage);
-  }
-
-  const bodyJWT: BodyJWT = {
-    id: user.id,
-    username: user.username,
-    deviceId: body.deviceId,
-  };
-
-  const token = await signJWT(bodyJWT, true);
-
-  const successMessage = createSuccessMessage({
+  const token = await signJWT(
+    { id: user.id, username: user.username, deviceId: data.deviceId },
+    data.remember
+  );
+  const { password: _password, ...profile } = user;
+  return createSuccessMessage({
     message: "login.success",
-    result: {
-      token,
-      user: bodyJWT,
-    },
+    result: { token, user: profile },
   });
-
-  return context.status(200, successMessage);
 };

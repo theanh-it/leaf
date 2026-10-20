@@ -1,21 +1,10 @@
-import type { Context } from "elysia";
-
-import { prisma } from "@/database";
 import { createSuccessMessage } from "@/helpers/response";
+import type { ContextAuth } from "@/types";
 
-import type { BodyJWT } from "@/types";
-
-export default async (context: Context & { user: BodyJWT }) => {
-  const user = context.user;
-
-  const profile = await prisma.user.findFirst({
-    where: {
-      id: user.id,
-    },
-  });
-
+export default async (context: ContextAuth) => {
+  // requiredLogin đã tải user bằng USER_PUBLIC_SELECT.
   return createSuccessMessage({
     message: "Profile fetched successfully",
-    result: profile,
+    result: context.user,
   });
 };

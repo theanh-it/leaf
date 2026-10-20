@@ -11,6 +11,12 @@ const getPositiveInteger = (value: string | undefined, fallback: number) => {
 export const config = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || "development",
+  security: {
+    trustedProxyIps: (process.env.TRUSTED_PROXY_IPS ?? "")
+      .split(",")
+      .map((address) => address.trim())
+      .filter(Boolean),
+  },
   backup: {
     retentionDays: Number(process.env.BACKUP_RETENTION_DAYS ?? 7),
     restoreMaxFileSize: getPositiveInteger(

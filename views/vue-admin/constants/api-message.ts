@@ -1,4 +1,20 @@
 export const API_ERROR_MESSAGE: Record<string, string> = {
+  "http.notFound": "Không tìm thấy tài nguyên.",
+  "request.parseError": "Định dạng yêu cầu không hợp lệ.",
+  "server.error": "Máy chủ gặp lỗi. Vui lòng thử lại sau.",
+  "health.unavailable": "Máy chủ chưa sẵn sàng phục vụ yêu cầu.",
+  "auth.requiredToken": "Vui lòng đăng nhập.",
+  "auth.invalidToken": "Phiên đăng nhập đã hết hạn hoặc không hợp lệ.",
+  "auth.accountUnavailable":
+    "Tài khoản chưa được kích hoạt hoặc không còn hoạt động.",
+  "auth.forbidden": "Bạn không có quyền truy cập trang quản trị.",
+  "login.failed": "Tên đăng nhập hoặc mật khẩu không đúng.",
+  "login.invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng.",
+  "rateLimit.loginExceeded":
+    "Bạn đăng nhập quá nhiều lần. Vui lòng thử lại sau một phút.",
+  "rateLimit.registerExceeded":
+    "Bạn đăng ký quá nhiều lần. Vui lòng thử lại sau một phút.",
+  "users.passwordTooLong": "Mật khẩu không được vượt quá 72 byte UTF-8.",
   "backups.fileNotFound": "Không tìm thấy file backup.",
   "backups.invalidDatabase":
     "File database không hợp lệ. Hãy chọn bản backup .dump do ứng dụng tạo.",

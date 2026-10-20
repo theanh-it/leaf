@@ -1,9 +1,3 @@
-export type Profile = {
-  id: string;
-  username: string;
-  fullname: string;
-  email: string;
-  phone: string;
-  type: string;
-  status: string;
-};
+import type { User } from "@fe-admin/types/user";
+
+export type Profile = User;

@@ -1,55 +1,35 @@
 import type { Elysia } from "elysia";
+import { createErrorMessage } from "@/helpers/response";
+import { logger } from "@/plugins/logger";
 
-export const errorHandlerPlugin = () => {
-  return (app: Elysia) => {
-    return app.onError(({ code, error, set, path, request }: any) => {
-      const method = request.method;
+export const errorHandlerPlugin = () => (app: Elysia) => {
+  return app.onError(({ code, error, set, path, request }) => {
+    const detail = error instanceof Error ? error.message : "Unknown error";
+    const data = { code, method: request.method, path };
+    if (code === "NOT_FOUND") logger.warn("Resource not found", data);
+    else logger.error("Request failed", { ...data, error: detail });
 
-      if (code === "NOT_FOUND") {
-        // Log gọn, có đủ thông tin debug
-        console.warn(`[404] ${method} ${path}`);
-      } else {
-        console.error("--------------------------------");
-        console.error(`[${code}] ${method} ${path}:`);
-        console.error(error.message);
-        console.error("--------------------------------");
-      }
-
-      // Không expose lỗi chi tiết trong production
-      const isDevelopment = process.env.NODE_ENV === "development";
-
-      switch (code) {
-        case "NOT_FOUND":
-          set.status = 404;
-          return {
-            error: "Not Found",
-            message: "The requested resource was not found",
-          };
-
-        case "VALIDATION":
-          set.status = 400;
-          return {
-            error: "Validation Error",
-            message: isDevelopment ? error.message : "Invalid input",
-          };
-
-        case "PARSE":
-          set.status = 400;
-          return {
-            error: "Parse Error",
-            message: isDevelopment ? error.message : "Invalid request format",
-          };
-
-        case "INTERNAL_SERVER_ERROR":
-        default:
-          set.status = 500;
-          return {
-            error: "Internal Server Error",
-            message: isDevelopment
-              ? error.message
-              : "An unexpected error occurred",
-          };
-      }
+    let message: string;
+    switch (code) {
+      case "NOT_FOUND":
+        set.status = 404;
+        message = "http.notFound";
+        break;
+      case "VALIDATION":
+        set.status = 400;
+        message = "validation.error";
+        break;
+      case "PARSE":
+        set.status = 400;
+        message = "request.parseError";
+        break;
+      default:
+        set.status = 500;
+        message = "server.error";
+    }
+    return createErrorMessage({
+      message,
+      ...(process.env.NODE_ENV === "development" ? { result: { detail } } : {}),
     });
-  };
+  });
 };

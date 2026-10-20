@@ -1,10 +1,16 @@
-import type { Context } from "elysia";
 import { config } from "@be-config";
 
 interface SitemapUrl {
   loc: string;
   lastmod?: string;
-  changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
+  changefreq?:
+    | "always"
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "yearly"
+    | "never";
   priority?: number;
 }
 
@@ -23,7 +29,7 @@ ${urlElements}
 </urlset>`;
 }
 
-export default async (ctx: Context) => {
+export default async () => {
   const baseUrl = config.seo.baseUrl;
 
   // Define your routes here
@@ -57,4 +63,3 @@ export default async (ctx: Context) => {
     },
   });
 };
-

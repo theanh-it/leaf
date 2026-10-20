@@ -1,33 +1,25 @@
 import { z } from "zod";
 import type { Context } from "elysia";
 
-export const validateData = async <T>(
-  data: object = {},
-  schema: z.Schema
-): Promise<{ output: T; errors: { [key: string]: string } | null }> => {
-  try {
-    const result = (await schema.parseAsync(data)) as T;
+export const validateData = async <S extends z.ZodType>(
+  data: unknown,
+  schema: S
+): Promise<
+  | { output: z.output<S>; errors: null }
+  | { output: null; errors: Record<string, string> }
+> => {
+  const result = await schema.safeParseAsync(data);
+  if (result.success) return { output: result.data, errors: null };
 
-    return { output: result, errors: null };
-  } catch (error: any) {
-    if (!error.issues) throw error;
-
-    const errors = error.issues.reduce(
-      (result: any, { path = [], message = "" }) => {
-        const [key] = path;
-
-        result[key] = message;
-
-        return result;
-      },
-      {}
-    );
-
-    return {
-      output: null as T,
-      errors,
-    };
-  }
+  return {
+    output: null,
+    errors: Object.fromEntries(
+      result.error.issues.map(({ path, message }) => [
+        String(path[0] ?? "_form"),
+        message,
+      ])
+    ),
+  };
 };
 
 const FILE_TYPE = {
@@ -73,8 +65,6 @@ export const getFilesFromBody = (
 };
 
 export const getToken = (context: Context) => {
-  const token = context.request.headers.get("authorization") || "";
-  const [_, tokenValue] = token.split(" ");
-
-  return tokenValue || "";
+  const header = context.request.headers.get("authorization") ?? "";
+  return /^Bearer\s+(\S+)$/i.exec(header)?.[1] ?? "";
 };

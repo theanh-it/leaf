@@ -20,7 +20,7 @@ Leaf is a full-stack starter built on **Bun + Elysia (backend)** and **Vue 3 + V
 - **Elysia v1.4** HTTP framework with typed `Context`.
 - **File-based routes** on the server (`routes/**`) and in each Vue app (`views/vue-*/pages/**`).
 - **Blade templates** (`@extends`, `@section`, `@yield`, `@include`, `@foreach`) for SSR shells.
-- **Vite 5** for the Vue frontend, including SCSS auto-injection of variables/mixins.
+- **Vite 8** for the Vue frontend, including SCSS auto-injection of variables/mixins.
 - **Built-in SEO**: dynamic meta tags, Open Graph, Twitter Cards, JSON-LD, `/sitemap.xml`, `/robots.txt` (via [`leaf-seo`](https://www.npmjs.com/package/leaf-seo)).
 - **Prisma 7** (PostgreSQL) with `@prisma/adapter-pg`.
 - **Manifest-aware SSR middleware** that injects hashed Vite assets into the Blade layout (cached in production, single-flight loader).
@@ -28,21 +28,21 @@ Leaf is a full-stack starter built on **Bun + Elysia (backend)** and **Vue 3 + V
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Bun |
-| Web framework | Elysia 1.4 |
-| Routing | `elysia-nnn-router` (server) · `vue-nnn-router` (client) |
-| SSR templates | `leaf-blade` (Blade-style for Bun/Elysia) |
-| SEO | `leaf-seo` |
-| Frontend | Vue 3, Vue Router 4, Pinia, Vite 5 |
-| Styling | SCSS (modern Sass API), `@use`/`@forward` |
-| HTTP client | `ky` |
-| Icons | FontAwesome (`@fortawesome/vue-fontawesome`) |
-| Notifications | `@kyvg/vue3-notification` |
-| Validation | `@vuelidate/core`, `@vuelidate/validators` |
-| Database | Prisma 7 + PostgreSQL (`@prisma/adapter-pg`) |
-| Language | TypeScript 5 (strict mode) |
+| Layer         | Technology                                               |
+| ------------- | -------------------------------------------------------- |
+| Runtime       | Bun                                                      |
+| Web framework | Elysia 1.4                                               |
+| Routing       | `elysia-nnn-router` (server) · `vue-nnn-router` (client) |
+| SSR templates | `leaf-blade` (Blade-style for Bun/Elysia)                |
+| SEO           | `leaf-seo`                                               |
+| Frontend      | Vue 3, Vue Router 4, Pinia, Vite 8                       |
+| Styling       | SCSS (modern Sass API), `@use`/`@forward`                |
+| HTTP client   | `ky`                                                     |
+| Icons         | FontAwesome (`@fortawesome/vue-fontawesome`)             |
+| Notifications | `@kyvg/vue3-notification`                                |
+| Validation    | `@vuelidate/core`, `@vuelidate/validators`               |
+| Database      | Prisma 7 + PostgreSQL (`@prisma/adapter-pg`)             |
+| Language      | TypeScript 5 (strict mode)                               |
 
 ## Project Structure
 
@@ -96,7 +96,7 @@ Leaf is a full-stack starter built on **Bun + Elysia (backend)** and **Vue 3 + V
 
 ## Quick Start
 
-Requires **Bun >= 1.1** and **PostgreSQL** running locally (or a `DATABASE_URL`).
+Requires **Bun >= 1.2.8** and **PostgreSQL** running locally (or a `DATABASE_URL`).
 
 ```bash
 # 1. Install dependencies
@@ -107,9 +107,9 @@ cp .env.example .env
 # then edit DATABASE_URL, BASE_URL, CORS_ORIGIN, …
 
 # 3. (One-time) Generate Prisma client and seed
-bunx prisma generate
-bunx prisma migrate dev
-bun run prisma/seed.ts
+bun run prisma:generate
+bun run prisma:migrate
+bun run prisma:seed
 
 # 4. Run dev (backend + Vite watch in parallel)
 bun run dev
@@ -120,34 +120,34 @@ bun run dev
 
 ## Scripts
 
-| Script | What it does |
-|---|---|
-| `bun run dev` | Runs backend (with watch) and Vite build watcher in parallel |
-| `bun run be` | Backend dev only (auto-reload via nodemon) |
-| `bun run fe` | Vite dev server |
-| `bun run watch` | Vite build in watch mode (produces `dist/frontend`) |
-| `bun run build:fe` | One-shot Vite production build |
-| `bun run build:be` | Bundles the server with `bun build` |
-| `bun run build` | `build:fe` + `build:be` |
-| `bun run start` | Runs the compiled `dist/server.js` |
+| Script             | What it does                                                 |
+| ------------------ | ------------------------------------------------------------ |
+| `bun run dev`      | Runs backend (with watch) and Vite build watcher in parallel |
+| `bun run be`       | Backend dev only (auto-reload via nodemon)                   |
+| `bun run fe`       | Vite dev server                                              |
+| `bun run watch`    | Vite build in watch mode (produces `dist/frontend`)          |
+| `bun run build:fe` | One-shot Vite production build                               |
+| `bun run build:be` | Bundles the server with `bun build`                          |
+| `bun run build`    | `build:fe` + `build:be`                                      |
+| `bun run start`    | Runs the compiled `dist/server.js`                           |
 
 ## Environment Variables
 
 Defined in `config/index.ts`, sourced from `.env`:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `PORT` | `5000` | Backend HTTP port |
-| `NODE_ENV` | `development` | Toggles caching, error verbosity, robots policy |
-| `VITE_PORT` | `3000` | Vite dev server port |
-| `CORS_ORIGIN` | `http://localhost:3000,http://localhost:5000` | Comma-separated CORS origins |
-| `DATABASE_URL` | — | PostgreSQL connection string (**required**) |
-| `BASE_URL` | `http://localhost:5000` | Used for sitemap, canonical URLs |
-| `SITE_NAME` | `Leaf App` | Site name in SEO meta |
-| `DEFAULT_OG_IMAGE` | `/og-default.jpg` | Fallback Open Graph image |
-| `SITE_LOCALE` | `vi_VN` | Default locale |
-| `TWITTER_HANDLE` | — | Twitter handle for cards |
-| `BLADE_VIEWS_DIR` | `views/blade` | Override Blade templates folder |
+| Variable           | Default                                       | Purpose                                         |
+| ------------------ | --------------------------------------------- | ----------------------------------------------- |
+| `PORT`             | `5000`                                        | Backend HTTP port                               |
+| `NODE_ENV`         | `development`                                 | Toggles caching, error verbosity, robots policy |
+| `VITE_PORT`        | `3000`                                        | Vite dev server port                            |
+| `CORS_ORIGIN`      | `http://localhost:3000,http://localhost:5000` | Comma-separated CORS origins                    |
+| `DATABASE_URL`     | —                                             | PostgreSQL connection string (**required**)     |
+| `BASE_URL`         | `http://localhost:5000`                       | Used for sitemap, canonical URLs                |
+| `SITE_NAME`        | `Leaf App`                                    | Site name in SEO meta                           |
+| `DEFAULT_OG_IMAGE` | `/og-default.jpg`                             | Fallback Open Graph image                       |
+| `SITE_LOCALE`      | `vi_VN`                                       | Default locale                                  |
+| `TWITTER_HANDLE`   | —                                             | Twitter handle for cards                        |
+| `BLADE_VIEWS_DIR`  | `views/blade`                                 | Override Blade templates folder                 |
 
 ## Path Aliases
 
@@ -200,15 +200,36 @@ Out of the box:
 - Vite builds independent public/admin entries and configures manual chunks for common libraries without a catch-all vendor bundle. The bundle visualizer is written to `dist/stats.html`.
 - `optimizeDeps.include: ['vue']` warms Vite pre-bundling.
 
+## Validation and deployment
+
+- `bun run typecheck` checks TypeScript and Vue templates with `vue-tsc`.
+- Test paths mirror source paths: `helpers/image.ts` → `tests/helpers/image.test.ts`, `routes/api/users/[id]/put.ts` → `tests/routes/api/users/[id]/put.test.ts`. Directory names, HTTP methods, `_middleware`, and `[id]` are preserved; `tests/support/` contains environment setup only. See the [source-to-test and coverage map](tests/README.md).
+- Run `bun run test` for the full suite, or `bun run test:helpers`, `bun run test:middlewares`, `bun run test:routes`, `bun run test:backup`, and `bun run test:server` by source directory.
+- `bun test` runs unit and integration tests. Set `TEST_POSTGRES_BIN` to the directory containing `initdb`, `postgres`, `pg_dump`, `pg_restore`, and `psql` for the full PostgreSQL suite. Tests create isolated temporary clusters and do not use the database in `.env`. Missing binaries skip database tests locally; CI requires them.
+- `bun run build` stops if the frontend build fails. The backend build and `bun run start` set `NODE_ENV=production` so the bundle does not retain development behavior. GitHub Actions runs typecheck, all tests, and the build with Bun 1.2.8/PostgreSQL 16.
+- Before production, set `NODE_ENV=production`, a strong random `JWT_SECRET`, `DATABASE_URL`, `BASE_URL`, `VITE_API_URL`, and explicit `CORS_ORIGIN` values. Frontend `VITE_*` values are embedded at build time.
+- Run `bun run prisma:migrate:production`, build, then `bun run start`. Deploy `routes/`, `views/blade/`, `public/`, the Prisma client/dependencies, and `dist/` because routes and templates load at runtime. Persist `files/`, `backup/`, and `storage/`; configure HTTPS and uploaded-file serving at the reverse proxy where needed.
+- `GET /health` is liveness. `GET /health/ready` checks the database and returns 503 when it is unavailable or a restore is running; use it for load-balancer readiness.
+
+## Authentication and users API
+
+- `requiredLogin` loads the current user with `USER_PUBLIC_SELECT` and accepts only `active` accounts. `requiredAdmin` checks `type === "admin"`, independent of username or stale JWT claims. Profile and user responses omit password hashes.
+- Login accepts `remember: boolean` (default false): tokens last one day, or seven days when remembered. New passwords require at least six characters and at most 72 UTF-8 bytes to avoid bcrypt truncation.
+- Public registration always creates a `customer/pending` account; an administrator must activate it before login. Concurrent username conflicts return a field error. Default limits: 10 login and 5 registration requests per minute per IP.
+- Rate limiting uses the socket IP by default and ignores client-supplied IP headers. Set `TRUSTED_PROXY_IPS` only to exact socket IPs of trusted reverse proxies, which must overwrite or append the source IP to `X-Forwarded-For`. The chain is walked right to left until the first untrusted hop. Rate-limit storage and backup/restore locks are process-local; add shared coordination before deploying multiple replicas.
+- `GET /api/users` accepts `page`, `limit` (1–100, default 20), `search`, `type`, and `status`. Its `result` is `{ items, pagination: { page, limit, totalRecords, totalPages } }`; update older clients that expected an array.
+
 ## Roadmap
 
-- [ ] Rate limiting middleware (e.g. `@elysiajs/rate-limit` or custom).
-- [ ] Input validation with Elysia validators / Zod on `/api/*`.
-- [ ] Auth (JWT or session) and protected routes.
-- [ ] Test setup (`bun test`) for blade rendering, manifest middleware, helpers.
-- [ ] ESLint + Prettier scripts, pre-commit hooks.
-- [ ] Streaming SSR for above-the-fold content.
-- [ ] HTTP compression (gzip/brotli) for non-static responses.
+- [x] JWT authentication, current account role/status checks, and protected routes.
+- [x] Zod validation and rate limiting for login/registration.
+- [x] User CRUD, server pagination, search, and filters.
+- [x] Auth, authorization, CRUD, upload, and backup/restore tests; CI and Vue typechecking.
+- [ ] Email password recovery; the login page currently directs users to an administrator.
+- [ ] Server-side session revocation on logout/password changes; logout currently removes browser tokens, while JWTs retain their own expiry.
+- [ ] Blade rendering and Vite manifest middleware tests.
+- [ ] ESLint, repository-wide formatting checks, and pre-commit hooks.
+- [ ] Streaming SSR and compression for non-static HTTP responses.
 
 ## License
 

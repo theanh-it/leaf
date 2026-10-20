@@ -105,6 +105,7 @@ const handlePageClick = (pageNumber: number) => {
     <template v-if="totalPages > 1">
       <div
         v-for="item in items"
+        :key="`${item.type}-${item.page}`"
         :class="['item', `-${item.type}`, { '-active': page === item.page }]"
         @click="handlePageClick(item.page)"
       >

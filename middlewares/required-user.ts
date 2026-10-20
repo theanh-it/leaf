@@ -1,20 +1,11 @@
-import { MESSAGE, ERROR } from "@/constants/message";
+import type { ContextAuth } from "@/types";
 import { createErrorMessage } from "@/helpers/response";
 
-import { STATUS_RESPONSE } from "@/constants";
-
-import type { ContextCustom } from "@/types";
-
-export default async (context: ContextCustom) => {
-  if (!context.user.id) {
-    const errorMessage = createErrorMessage({
-      status: STATUS_RESPONSE.validationError,
-      message: MESSAGE.validationError,
-      result: {
-        token: ERROR.requiredToken,
-      },
-    });
-
-    return context.status(422, errorMessage);
+export default async (context: ContextAuth) => {
+  if (!context.user?.id || context.user.status !== "active") {
+    return context.status(
+      401,
+      createErrorMessage({ message: "auth.accountUnavailable" })
+    );
   }
 };

@@ -1,6 +1,8 @@
 import type { Context } from "elysia";
 
 import { createErrorMessage } from "@/helpers/response";
+import { config } from "@be-config";
+import { resolveClientIp } from "@/helpers/client-ip";
 
 type KeyGenerator = (context: Context) => string;
 
@@ -44,30 +46,16 @@ function ensureCleanup() {
     }
   }, CLEANUP_INTERVAL_MS);
 
-  (cleanupTimer as any)?.unref?.();
+  cleanupTimer.unref();
 }
 
 function getClientIp(context: Context): string {
-  const headers = context.request.headers;
-
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-
-  const realIp = headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-
-  const cfIp = headers.get("cf-connecting-ip");
-  if (cfIp) return cfIp.trim();
-
-  try {
-    const server = (context as any).server;
-    const ip = server?.requestIP?.(context.request);
-    if (ip?.address) return ip.address as string;
-  } catch {
-    // ignore
-  }
-
-  return "unknown";
+  const peer = context.server?.requestIP(context.request)?.address;
+  return resolveClientIp(
+    peer,
+    context.request.headers.get("x-forwarded-for"),
+    config.security.trustedProxyIps
+  );
 }
 
 const rateLimit = (options: RateLimitOptions = {}) => {

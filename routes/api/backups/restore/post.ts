@@ -30,10 +30,7 @@ const schema = z.object({
 });
 
 export default async (context: Context) => {
-  const validation = await validateData<z.infer<typeof schema>>(
-    context.body as object,
-    schema
-  );
+  const validation = await validateData(context.body as object, schema);
   if (validation.errors) {
     return context.status(
       422,

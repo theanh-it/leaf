@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { prisma } from "@/database";
 import { hashPassword } from "@/helpers/password";
+import { passwordSchema, usernameSchema } from "@/helpers/auth-schema";
 import { validateData } from "@/helpers/request";
 import { createErrorMessage, createSuccessMessage } from "@/helpers/response";
 import {
@@ -14,22 +15,25 @@ import {
 } from "@/helpers/user";
 
 const createUserSchema = z.object({
-  username: z.string().trim().min(3).max(255),
-  password: z.string().min(6).max(255),
+  username: usernameSchema,
+  password: passwordSchema,
   fullname: z.string().trim().max(255).optional().nullable(),
-  email: z.string().trim().email().max(255).optional().nullable().or(z.literal("")),
+  email: z
+    .string()
+    .trim()
+    .email()
+    .max(255)
+    .optional()
+    .nullable()
+    .or(z.literal("")),
   phone: z.string().trim().max(255).optional().nullable(),
   address: z.string().trim().max(255).optional().nullable(),
   type: z.enum(USER_TYPES).default("customer"),
   status: z.enum(USER_STATUSES).default("pending"),
 });
 
-type CreateUserBody = z.infer<typeof createUserSchema>;
-
 export default async (context: Context) => {
-  const body = context.body as CreateUserBody;
-
-  const resultValidate = await validateData(body, createUserSchema);
+  const resultValidate = await validateData(context.body, createUserSchema);
 
   if (resultValidate.errors) {
     return context.status(

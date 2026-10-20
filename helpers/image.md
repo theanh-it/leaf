@@ -229,13 +229,8 @@ const uploadImageSchema = z.object({
   image: z.file().max(MAX_IMAGE_SIZE),
 });
 
-type UploadImageBody = z.infer<typeof uploadImageSchema>;
-
 export default async (context: Context) => {
-  const validation = await validateData<UploadImageBody>(
-    context.body as object,
-    uploadImageSchema
-  );
+  const validation = await validateData(context.body, uploadImageSchema);
 
   if (validation.errors) {
     return context.status(
@@ -300,13 +295,8 @@ const uploadImagesSchema = z.object({
     .refine((files) => files.length <= MAX_IMAGES, "Quá số lượng ảnh cho phép"),
 });
 
-type UploadImagesBody = z.infer<typeof uploadImagesSchema>;
-
 export default async (context: Context) => {
-  const validation = await validateData<UploadImagesBody>(
-    context.body as object,
-    uploadImagesSchema
-  );
+  const validation = await validateData(context.body, uploadImagesSchema);
 
   if (validation.errors) {
     return context.status(
@@ -506,7 +496,7 @@ trả trạng thái xử lý bất đồng bộ.
 Chạy test riêng cho helper:
 
 ```bash
-bun test helpers/image.test.ts
+bun test tests/helpers/image.test.ts
 ```
 
 Test hiện kiểm tra:

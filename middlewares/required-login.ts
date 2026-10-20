@@ -1,38 +1,38 @@
 import type { Context } from "elysia";
 
+import { prisma } from "@/database";
 import { createErrorMessage } from "@/helpers/response";
 import { verifyToken } from "@/helpers/auth";
 import { getToken } from "@/helpers/request";
-
+import { USER_PUBLIC_SELECT } from "@/helpers/user";
 import type { BodyJWT } from "@/types";
 
 export default async (context: Context) => {
+  const token = getToken(context);
+  if (!token) return unauthorized(context, "auth.requiredToken");
+
+  let decoded: BodyJWT;
   try {
-    const token = getToken(context);
-
-    if (!token) {
-      const errorMessage = createErrorMessage({
-        message: "auth.requiredToken",
-        result: {
-          token: "auth.requiredToken",
-        },
-      });
-
-      return context.status(401, errorMessage);
-    }
-
-    const decoded = await verifyToken(token);
-    const user = decoded as BodyJWT;
-
-    Object.assign(context, { user });
-  } catch (error) {
-    const errorMessage = createErrorMessage({
-      message: "auth.invalidToken",
-      result: {
-        token: "auth.invalidToken",
-      },
-    });
-
-    return context.status(401, errorMessage);
+    decoded = await verifyToken(token);
+  } catch {
+    return unauthorized(context, "auth.invalidToken");
   }
+
+  // Đọc quyền hiện tại, không tin role/status hoặc username trong JWT cũ.
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.id },
+    select: USER_PUBLIC_SELECT,
+  });
+  if (!user || user.status !== "active") {
+    return unauthorized(context, "auth.accountUnavailable");
+  }
+
+  Object.assign(context, { user });
 };
+
+function unauthorized(context: Context, message: string) {
+  return context.status(
+    401,
+    createErrorMessage({ message, result: { token: message } })
+  );
+}

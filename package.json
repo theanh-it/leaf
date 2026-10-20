@@ -4,21 +4,28 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "bun run dist/server.js",
+    "start": "NODE_ENV=production bun run dist/server.js",
     "fe": "bun --bun vite --configLoader native",
     "build:fe": "bun --bun vite build --configLoader native",
     "watch": "bun --bun vite build --watch --configLoader native",
     "be": "bunx nodemon --exec \"bun run\" server.ts --ignore \"public/**\" --ignore \"dist/**\"",
-    "build:be": "bun build server.ts --outdir dist --target bun",
+    "build:be": "NODE_ENV=production bun build server.ts --outdir dist --target bun",
     "dev": "concurrently \"bun run be\" \"bun run watch\"",
-    "build": "bun run build:fe; bun run build:be",
-    "prisma:migrate": "bunx prisma migrate dev",
+    "build": "bun run build:fe && bun run build:be",
+    "prisma:migrate": "bunx --bun prisma migrate dev",
     "prisma:migrate:production": "bunx --bun prisma migrate deploy",
-    "prisma:generate": "rm -rf node_modules/.prisma/client; bunx prisma generate",
+    "prisma:generate": "bunx --bun prisma generate",
     "prisma:seed": "bun run prisma/seed.ts",
     "prisma:reset": "bunx --bun prisma migrate reset",
     "backup": "bun run backup/start.ts",
-    "backup:clear": "bun run backup/clear-backup.ts"
+    "backup:clear": "bun run backup/clear-backup.ts",
+    "test": "bun test tests",
+    "typecheck": "bunx --bun --no-install vue-tsc --noEmit",
+    "test:helpers": "bun test tests/helpers",
+    "test:middlewares": "bun test tests/middlewares",
+    "test:routes": "bun test tests/routes",
+    "test:backup": "bun test tests/backup",
+    "test:server": "bun test tests/server.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -78,6 +85,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vite": "8.3.4",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-tsc": "^3.3.13"
   }
 }

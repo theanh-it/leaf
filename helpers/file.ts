@@ -38,30 +38,6 @@ const getFileName = (file: File, options: UploadFileOptions) => {
   }
 };
 
-// === Ghi stream vào file (Bun tự tạo thư mục) ===
-const writeStreamToFile = async (
-  stream: ReadableStream<Uint8Array>,
-  filePath: string
-) => {
-  const fullPath = `${ROOT_FOLDER}/${filePath}`;
-  const writer = Bun.file(fullPath).writer();
-  const reader = stream.getReader();
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) break;
-
-      writer.write(value);
-    }
-
-    await writer.end();
-  } finally {
-    reader.releaseLock();
-  }
-};
-
 const writeStreamToFileV2 = async (
   stream: ReadableStream<Uint8Array>,
   filePath: string
@@ -69,11 +45,6 @@ const writeStreamToFileV2 = async (
   const fullPath = `${ROOT_FOLDER}/${filePath}`;
   const response = new Response(stream);
   await Bun.write(fullPath, response);
-};
-
-const writeBufferToFile = async (buffer: Buffer, filePath: string) => {
-  const fullPath = `${ROOT_FOLDER}/${filePath}`;
-  await Bun.write(fullPath, buffer);
 };
 
 const uploadFile = async (file: File, options: UploadFileOptions) => {

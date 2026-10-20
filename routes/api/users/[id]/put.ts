@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { prisma } from "@/database";
 import { hashPassword } from "@/helpers/password";
+import { passwordSchema, usernameSchema } from "@/helpers/auth-schema";
+import type { Prisma } from ".prisma/client/client";
 import { validateData } from "@/helpers/request";
 import { createErrorMessage, createSuccessMessage } from "@/helpers/response";
 import {
@@ -15,23 +17,33 @@ import {
 import { STATUS_RESPONSE } from "@/constants";
 
 const updateUserSchema = z.object({
-  username: z.string().trim().min(3).max(255).optional(),
-  password: z.string().min(6).max(255).optional(),
+  username: usernameSchema.optional(),
+  password: passwordSchema.optional(),
   fullname: z.string().trim().max(255).optional().nullable(),
-  email: z.string().trim().email().max(255).optional().nullable().or(z.literal("")),
+  email: z
+    .string()
+    .trim()
+    .email()
+    .max(255)
+    .optional()
+    .nullable()
+    .or(z.literal("")),
   phone: z.string().trim().max(255).optional().nullable(),
   address: z.string().trim().max(255).optional().nullable(),
   type: z.enum(USER_TYPES).optional(),
   status: z.enum(USER_STATUSES).optional(),
 });
 
-type UpdateUserBody = z.infer<typeof updateUserSchema>;
-
 export default async (context: Context) => {
-  const { id } = context.params as { id: string };
-  const body = context.body as UpdateUserBody;
-
-  const resultValidate = await validateData(body, updateUserSchema);
+  const params = await validateData(context.params, z.object({ id: z.uuid() }));
+  if (params.errors) {
+    return context.status(
+      422,
+      createErrorMessage({ message: "validation.error", result: params.errors })
+    );
+  }
+  const { id } = params.output;
+  const resultValidate = await validateData(context.body, updateUserSchema);
 
   if (resultValidate.errors) {
     return context.status(
@@ -44,7 +56,10 @@ export default async (context: Context) => {
   }
 
   const data = resultValidate.output;
-  const existing = await prisma.user.findUnique({ where: { id } });
+  const existing = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true },
+  });
 
   if (!existing) {
     return context.status(
@@ -57,13 +72,15 @@ export default async (context: Context) => {
   }
 
   try {
-    const updateData: Record<string, unknown> = {};
+    const updateData: Prisma.UserUpdateInput = {};
 
     if (data.username !== undefined) updateData.username = data.username;
-    if (data.fullname !== undefined) updateData.fullname = emptyToNull(data.fullname);
+    if (data.fullname !== undefined)
+      updateData.fullname = emptyToNull(data.fullname);
     if (data.email !== undefined) updateData.email = emptyToNull(data.email);
     if (data.phone !== undefined) updateData.phone = emptyToNull(data.phone);
-    if (data.address !== undefined) updateData.address = emptyToNull(data.address);
+    if (data.address !== undefined)
+      updateData.address = emptyToNull(data.address);
     if (data.type !== undefined) updateData.type = data.type;
     if (data.status !== undefined) updateData.status = data.status;
 

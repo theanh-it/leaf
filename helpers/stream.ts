@@ -6,10 +6,7 @@ export class SSEController {
   private encoder = new TextEncoder();
   private closed = false;
 
-  constructor(
-    private context: Context,
-    private writable: WritableStream<Uint8Array>
-  ) {
+  constructor(context: Context, writable: WritableStream<Uint8Array>) {
     this.writer = writable.getWriter();
 
     // Cleanup khi client disconnect
@@ -95,10 +92,7 @@ export class SSETransform {
   private closed = false;
   private abortListener: (() => void) | null = null;
 
-  constructor(
-    private context: Context,
-    extraHeaders: Record<string, string> = {}
-  ) {
+  constructor(context: Context, extraHeaders: Record<string, string> = {}) {
     const baseHeaders = {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",

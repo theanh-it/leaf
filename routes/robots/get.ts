@@ -1,7 +1,6 @@
-import type { Context } from "elysia";
 import { config } from "@be-config";
 
-export default (ctx: Context) => {
+export default () => {
   const baseUrl = config.seo.baseUrl;
   const isProduction = config.nodeEnv === "production";
 
@@ -25,4 +24,3 @@ Disallow: /
     },
   });
 };
-

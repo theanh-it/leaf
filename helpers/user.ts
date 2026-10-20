@@ -28,9 +28,14 @@ export const emptyToNull = (value?: string | null) => {
   return trimmed || null;
 };
 
-export const isUniqueConstraintError = (error: unknown) => {
+export const isUniqueConstraintError = (
+  error: unknown
+): error is Prisma.PrismaClientKnownRequestError => {
   return (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
+    (error instanceof Prisma.PrismaClientKnownRequestError ||
+      (isRecord(error) &&
+        error.name === "PrismaClientKnownRequestError" &&
+        typeof error.clientVersion === "string")) &&
     error.code === "P2002"
   );
 };
@@ -38,11 +43,21 @@ export const isUniqueConstraintError = (error: unknown) => {
 export const getUniqueFieldError = (error: unknown) => {
   if (!isUniqueConstraintError(error)) return null;
 
-  const target = (error as Prisma.PrismaClientKnownRequestError).meta?.target;
+  const meta = error.meta;
+  const adapterError = meta?.driverAdapterError;
+  const cause = isRecord(adapterError) ? adapterError.cause : undefined;
+  const constraint = isRecord(cause) ? cause.constraint : undefined;
+  const fields =
+    meta?.target ?? (isRecord(constraint) ? constraint.fields : undefined);
+  if (!Array.isArray(fields)) return null;
 
-  if (Array.isArray(target) && target[0]) {
-    return String(target[0]);
-  }
-
-  return "field";
+  return (
+    (["username", "email", "phone"] as const).find((field) =>
+      fields.includes(field)
+    ) ?? null
+  );
 };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}

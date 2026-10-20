@@ -1,20 +1,11 @@
-import { MESSAGE, ERROR } from "@/constants/message";
+import type { ContextAuth } from "@/types";
 import { createErrorMessage } from "@/helpers/response";
 
-import { STATUS_RESPONSE } from "@/constants";
-
-import type { ContextAuth } from "@/types";
-
 export default async (context: ContextAuth) => {
-  if (!context.user || !context.user.id || context.user.username !== "admin") {
-    const errorMessage = createErrorMessage({
-      status: STATUS_RESPONSE.validationError,
-      message: MESSAGE.validationError,
-      result: {
-        token: ERROR.requiredToken,
-      },
-    });
-
-    return context.status(422, errorMessage);
+  if (context.user?.status !== "active" || context.user?.type !== "admin") {
+    return context.status(
+      403,
+      createErrorMessage({ message: "auth.forbidden" })
+    );
   }
 };

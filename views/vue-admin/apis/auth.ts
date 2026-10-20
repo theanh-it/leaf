@@ -3,6 +3,7 @@ import { api } from "@fe-admin/plugins/ky";
 type LoginBody = {
   username: string;
   password: string;
+  remember?: boolean;
 };
 
 type LoginResponse = {
@@ -10,7 +11,8 @@ type LoginResponse = {
   user: {
     id: string;
     username: string;
-    deviceId: string;
+    type: string;
+    status: string;
   };
 };
 

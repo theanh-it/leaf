@@ -10,6 +10,7 @@ import type { User } from "@fe-admin/types/user";
 type LoginBody = {
   username: string;
   password: string;
+  remember?: boolean;
 };
 
 export const useAuthStore = defineStore("auth", () => {
@@ -42,11 +43,16 @@ export const useAuthStore = defineStore("auth", () => {
   const login = async (data: LoginBody) => {
     const response = await authApi.login(data);
 
+    if (response.result.user.type !== "admin") {
+      throw { message: "auth.forbidden" };
+    }
+
     localStorage.setItem("token", response.result.token);
     localStorage.setItem("userId", response.result.user.id);
 
     token.value = response.result.token;
     await getProfile();
+    if (!user.value.id) throw { message: "auth.accountUnavailable" };
   };
 
   const logout = async () => {

@@ -1,68 +1,60 @@
 import type { Context } from "elysia";
 import { z } from "zod";
 
+import { prisma } from "@/database";
+import { usernameSchema, passwordSchema } from "@/helpers/auth-schema";
 import { hashPassword } from "@/helpers/password";
 import { validateData } from "@/helpers/request";
 import { createErrorMessage, createSuccessMessage } from "@/helpers/response";
-import { prisma } from "@/database";
+import { getUniqueFieldError, USER_PUBLIC_SELECT } from "@/helpers/user";
 
 const registerSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-  fullname: z.string(),
+  username: usernameSchema,
+  password: passwordSchema,
+  fullname: z.string().trim().min(1).max(255),
 });
 
-type RegisterBody = z.infer<typeof registerSchema>;
-
 export default async (context: Context) => {
-  const body = context.body as RegisterBody;
-
-  const resultValidate = await validateData(body, registerSchema);
-
-  if (resultValidate.errors) {
-    const errorMessage = createErrorMessage({
-      result: resultValidate.errors,
-      message: "validation.error",
-    });
-
-    return context.status(422, errorMessage);
+  const validation = await validateData(context.body, registerSchema);
+  if (validation.errors) {
+    return context.status(
+      422,
+      createErrorMessage({
+        status: "validation_error",
+        message: "validation.error",
+        result: validation.errors,
+      })
+    );
   }
 
-  const user = await prisma.user.findFirst({
-    where: {
-      username: body.username,
-    },
-  });
-
-  if (user) {
-    const errorMessage = createErrorMessage({
-      message: "register.failed",
-      result: {
-        email: "register.emailAlreadyExists",
+  const data = validation.output;
+  try {
+    const user = await prisma.user.create({
+      data: {
+        username: data.username,
+        password: await hashPassword(data.password),
+        fullname: data.fullname,
+        type: "customer",
+        status: "pending",
       },
+      select: USER_PUBLIC_SELECT,
     });
-
-    return context.status(422, errorMessage);
+    return context.status(
+      201,
+      createSuccessMessage({ message: "register.success", result: user })
+    );
+  } catch (error) {
+    // DB là nguồn xác thực unique, kể cả hai request đăng ký đồng thời.
+    if (getUniqueFieldError(error)) {
+      return context.status(
+        422,
+        createErrorMessage({
+          status: "validation_error",
+          message: "validation.error",
+          result: { username: "users.usernameAlreadyExists" },
+        })
+      );
+    }
+    throw error;
   }
-
-  const passwordHash = await hashPassword(body.password);
-
-  const newUser = await prisma.user.create({
-    data: {
-      username: body.username,
-      password: passwordHash,
-      fullname: body.fullname,
-    },
-  });
-
-  const successMessage = createSuccessMessage({
-    message: "register.success",
-    result: {
-      id: newUser.id,
-      email: newUser.email,
-      fullname: newUser.fullname,
-    },
-  });
-
-  return context.status(200, successMessage);
 };

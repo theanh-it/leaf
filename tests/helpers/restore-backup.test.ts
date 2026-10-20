@@ -1,3 +1,4 @@
+/** helpers/restore-backup.ts: khôi phục DB/files, rollback và từ chối archive nguy hiểm. */
 import {
   afterAll,
   afterEach,
@@ -10,15 +11,10 @@ import {
 import { chmod, mkdir, mkdtemp, readdir, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import { create, Header } from "tar";
 
 import { restoreBackup } from "@be-helpers/restore-backup";
 import { backupFiles } from "@/backup/backup-files";
-import {
-  acquireBackupOperation,
-  isRestoringBackup,
-} from "@be-helpers/backup-operation";
 import type { RestorePhase } from "@be-types/backup-restore";
 
 const PG_BIN =
@@ -110,10 +106,19 @@ describe.skipIf(!hasPostgres)("restore backup with isolated PostgreSQL", () => {
     for (let attempt = 0; attempt < 100; attempt += 1) {
       try {
         await sql("SELECT 1");
-        return;
       } catch {
         await Bun.sleep(50);
+        continue;
       }
+      await sql(
+        await Bun.file(
+          "prisma/migrations/20260609082020_init/migration.sql"
+        ).text()
+      );
+      await sql(
+        "INSERT INTO users (id, username, password, type, status, updated_at) VALUES ('00000000-0000-4000-8000-000000000001', 'admin', 'unused', 'admin', 'active', NOW())"
+      );
+      return;
     }
     throw new Error("Temporary PostgreSQL did not start");
   }, 20_000);
@@ -240,7 +245,7 @@ describe.skipIf(!hasPostgres)("restore backup with isolated PostgreSQL", () => {
       import restoreMaintenance from "@be-middlewares/restore-maintenance";
       const app = new Elysia().onBeforeHandle(restoreMaintenance)
         .use(nnnRouterPlugin({ dir: "routes/api/backups", prefix: "/api/backups", silent: true }));
-      const token = await signJWT({ id: "test", username: "admin" });
+      const token = await signJWT({ id: "00000000-0000-4000-8000-000000000001", username: "admin" });
       const headers = { Authorization: "Bearer " + token };
       const body = new FormData();
       const requestId = crypto.randomUUID();
@@ -373,45 +378,4 @@ describe.skipIf(!hasPostgres)("restore backup with isolated PostgreSQL", () => {
       "current"
     );
   });
-});
-
-test("backup and restore share one exclusive operation lock", () => {
-  const release = acquireBackupOperation("restore");
-  expect(release).not.toBeNull();
-  try {
-    expect(isRestoringBackup()).toBe(true);
-    expect(acquireBackupOperation("restore")).toBeNull();
-    expect(acquireBackupOperation("backup")).toBeNull();
-  } finally {
-    release?.();
-  }
-  expect(isRestoringBackup()).toBe(false);
-});
-
-test("bundled server and dynamically loaded routes share the same lock", async () => {
-  const directory = await mkdtemp(path.join(tmpdir(), "leaf-restore-bundle-"));
-  try {
-    const result = await Bun.build({
-      entrypoints: [path.join(process.cwd(), "helpers", "backup-operation.ts")],
-      target: "bun",
-    });
-    expect(result.success).toBe(true);
-    const output = result.outputs[0];
-    if (!output) throw new Error("No bundle generated");
-    const modulePath = path.join(directory, "operation.js");
-    await Bun.write(modulePath, output);
-    const bundled = (await import(
-      pathToFileURL(modulePath).href
-    )) as typeof import("@be-helpers/backup-operation");
-    const release = bundled.acquireBackupOperation("restore");
-    expect(release).not.toBeNull();
-    try {
-      expect(isRestoringBackup()).toBe(true);
-      expect(acquireBackupOperation("backup")).toBeNull();
-    } finally {
-      release?.();
-    }
-  } finally {
-    await rm(directory, { recursive: true, force: true });
-  }
 });

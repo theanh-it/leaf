@@ -7,6 +7,7 @@ import TableApp from "@fe-admin/components/app/table.vue";
 import ColApp from "@fe-admin/components/app/table/col.vue";
 import ColAction from "@fe-admin/components/app/table/col-action.vue";
 import ButtonApp from "@fe-admin/components/app/button.vue";
+import PaginateApp from "@fe-admin/components/app/paginate.vue";
 
 import { useConfirm } from "@fe-admin/composables/confirm";
 import { useNotification } from "@fe-admin/composables/notification";
@@ -15,7 +16,12 @@ import { useAppRouter } from "@fe-admin/composables/router";
 import { usersApi } from "@fe-admin/apis/users";
 
 import { API_ERROR_MESSAGE } from "@fe-admin/constants/api-message";
-import { getUserStatusLabel, getUserTypeLabel } from "@fe-admin/constants/user";
+import {
+  getUserStatusLabel,
+  getUserTypeLabel,
+  USER_STATUS_OPTIONS,
+  USER_TYPE_OPTIONS,
+} from "@fe-admin/constants/user";
 
 import type { User } from "@fe-admin/types/user";
 
@@ -25,6 +31,9 @@ const { notifySuccess, notifyError } = useNotification();
 
 const isLoading = ref(true);
 const users = ref<User[]>([]);
+const filters = ref({ search: "", type: "", status: "" });
+const pagination = ref({ page: 1, limit: 20, totalRecords: 0, totalPages: 1 });
+let latestRequest = 0;
 
 const headers = [
   "Tên đăng nhập",
@@ -36,16 +45,26 @@ const headers = [
   "Thao tác",
 ];
 
-const fetchUsers = async () => {
+const fetchUsers = async (page = pagination.value.page) => {
+  const request = ++latestRequest;
   isLoading.value = true;
 
   try {
-    const response = await usersApi.list();
-    users.value = response.result || [];
+    const response = await usersApi.list({
+      page,
+      limit: pagination.value.limit,
+      search: filters.value.search,
+      ...(filters.value.type ? { type: filters.value.type } : {}),
+      ...(filters.value.status ? { status: filters.value.status } : {}),
+    });
+    if (request !== latestRequest) return;
+    users.value = response.result.items;
+    pagination.value = response.result.pagination;
   } catch {
-    notifyError("Không thể tải danh sách người dùng");
+    if (request === latestRequest)
+      notifyError("Không thể tải danh sách người dùng");
   } finally {
-    isLoading.value = false;
+    if (request === latestRequest) isLoading.value = false;
   }
 };
 
@@ -81,7 +100,7 @@ const handleDelete = async (user: User) => {
   }
 };
 
-onMounted(fetchUsers);
+onMounted(() => fetchUsers());
 </script>
 
 <template>
@@ -99,6 +118,49 @@ onMounted(fetchUsers);
       title="Danh sách người dùng"
       @add="goToAddUser"
     >
+      <template #toolbar>
+        <form class="user-filters" @submit.prevent="fetchUsers(1)">
+          <input
+            v-model="filters.search"
+            class="field"
+            type="search"
+            maxlength="255"
+            aria-label="Tìm người dùng"
+            placeholder="Tên, email hoặc số điện thoại"
+          />
+          <select
+            v-model="filters.type"
+            class="field"
+            aria-label="Loại người dùng"
+          >
+            <option value="">Tất cả loại tài khoản</option>
+            <option
+              v-for="option in USER_TYPE_OPTIONS"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+          <select
+            v-model="filters.status"
+            class="field"
+            aria-label="Trạng thái"
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option
+              v-for="option in USER_STATUS_OPTIONS"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+          <button class="action" type="submit" :disabled="isLoading">
+            Tìm kiếm
+          </button>
+        </form>
+      </template>
       <TableApp :headers="headers" :rows="users" hidden-border hidden-radius>
         <template #row="{ row }">
           <ColApp :value="row.username" />
@@ -125,6 +187,34 @@ onMounted(fetchUsers);
           </ColAction>
         </template>
       </TableApp>
+      <PaginateApp v-bind="pagination" @run-page="fetchUsers" />
     </AdminCard>
   </AdminPage>
 </template>
+
+<style scoped lang="scss">
+.user-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+
+  > .field {
+    min-width: 0;
+    flex: 1 1 180px;
+    padding: $space-sm;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: $white;
+  }
+
+  > .action {
+    padding: $space-sm $space-md;
+    border: 0;
+    border-radius: $radius-sm;
+    background: $color-primary;
+    color: $white;
+    cursor: pointer;
+  }
+}
+</style>

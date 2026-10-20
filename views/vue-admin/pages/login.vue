@@ -10,6 +10,7 @@ import { useValidate } from "@fe-admin/composables/validate";
 import { useAuth } from "@fe-admin/composables/auth";
 
 import { ADMIN_BRAND, LOGIN_BENEFITS } from "@fe-admin/constants/app";
+import { API_ERROR_MESSAGE } from "@fe-admin/constants/api-message";
 import { requiredRule } from "@fe-admin/helpers/validate-rule";
 
 const { isLoading, showLoading, hiddenLoading } = useLoading();
@@ -19,6 +20,7 @@ const { login } = useAuth();
 
 const rememberMe = ref(false);
 const showPassword = ref(false);
+const showRecoveryHelp = ref(false);
 
 const form = ref({
   username: "",
@@ -28,7 +30,7 @@ const rules = computed(() => ({
   username: requiredRule("tên đăng nhập"),
   password: requiredRule("mật khẩu"),
 }));
-const { v$, errors } = useValidate(form, rules);
+const { v$, errors, setApiErrors } = useValidate(form, rules);
 
 const loginLabel = computed(() =>
   isLoading.value ? "Đang đăng nhập..." : "Đăng nhập"
@@ -46,20 +48,25 @@ const togglePassword = () => {
 };
 
 const handleLogin = async () => {
+  setApiErrors({});
   const isValid = await v$.value.$validate();
 
   if (!isValid) return;
 
   try {
     showLoading();
-    await login(form.value);
+    await login({ ...form.value, remember: rememberMe.value });
 
     notifySuccess("Đăng nhập thành công!");
     goToDashboard();
   } catch (error: any) {
     console.error(error);
 
-    notifyError("Đăng nhập thất bại. Vui lòng thử lại.");
+    if (error?.result) setApiErrors(error.result);
+    notifyError(
+      API_ERROR_MESSAGE[error?.message] ||
+        "Đăng nhập thất bại. Vui lòng thử lại."
+    );
   } finally {
     hiddenLoading();
   }
@@ -153,8 +160,19 @@ const handleLogin = async () => {
               <input v-model="rememberMe" type="checkbox" />
               <span>Ghi nhớ đăng nhập</span>
             </label>
-            <button type="button" class="forgot">Quên mật khẩu?</button>
+            <button
+              type="button"
+              class="forgot"
+              :aria-expanded="showRecoveryHelp"
+              @click="showRecoveryHelp = !showRecoveryHelp"
+            >
+              Quên mật khẩu?
+            </button>
           </div>
+
+          <p v-if="showRecoveryHelp" class="recovery" role="status">
+            Vui lòng liên hệ quản trị viên để được đặt lại mật khẩu.
+          </p>
 
           <button type="submit" class="submit-btn" :disabled="isLoading">
             <fa-icon icon="arrow-right-to-bracket" />

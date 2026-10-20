@@ -1,17 +1,17 @@
-import ky from "ky";
+import { HTTPError } from "ky";
 
 import { api } from "@fe-admin/plugins/ky";
 
 import type { UserForm } from "@fe-admin/constants/user";
-import type { User } from "@fe-admin/types/user";
+import type { User, UserList, UserListQuery } from "@fe-admin/types/user";
 
-type UserPayload = Omit<UserForm, "confirmPassword"> & {
+type UserPayload = Omit<UserForm, "confirmPassword" | "password"> & {
   password?: string;
 };
 
 const parseApiError = async (error: unknown) => {
-  if (error instanceof ky.HTTPError) {
-    throw await error.response.json();
+  if (error instanceof HTTPError) {
+    throw error.data ?? error;
   }
 
   throw error;
@@ -37,7 +37,8 @@ const toPayload = (form: UserForm, isEdit = false) => {
   return payload;
 };
 
-export const list = () => api.get<User[]>("users");
+export const list = (query: UserListQuery = {}) =>
+  api.get<UserList>("users", { searchParams: query });
 
 export const getById = (id: string) => api.get<User>(`users/${id}`);
 
