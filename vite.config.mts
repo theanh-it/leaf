@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
-import { config } from "./config";
+import { config } from "@be-config";
 import { visualizer } from "rollup-plugin-visualizer";
 import {
   vueNnnRouterNamesPlugin,
@@ -49,20 +49,18 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "${resolve(__dirname, "views/vue-shared/styles/main.scss")}" as *;`,
-        silenceDeprecations: ["legacy-js-api"],
-        api: "modern-compiler",
+        additionalData: `@use "${resolve(import.meta.dirname, "views/vue-shared/styles/main.scss")}" as *;`,
       },
     },
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "."),
-      "@fe-public": resolve(__dirname, "views/vue-public"),
-      "@fe-admin": resolve(__dirname, "views/vue-admin"),
-      "@fe-member": resolve(__dirname, "views/vue-member"),
-      "@fe-shared": resolve(__dirname, "views/vue-shared"),
-      "@fe-assets": resolve(__dirname, "public"),
+      "@": resolve(import.meta.dirname, "."),
+      "@fe-public": resolve(import.meta.dirname, "views/vue-public"),
+      "@fe-admin": resolve(import.meta.dirname, "views/vue-admin"),
+      "@fe-member": resolve(import.meta.dirname, "views/vue-member"),
+      "@fe-shared": resolve(import.meta.dirname, "views/vue-shared"),
+      "@fe-assets": resolve(import.meta.dirname, "public"),
     },
   },
   optimizeDeps: {
@@ -71,45 +69,36 @@ export default defineConfig({
   },
   publicDir: "public",
   build: {
+    // Preserve Vite 5's browser targets when upgrading the bundler.
+    target: ["chrome87", "edge88", "firefox78", "safari14"],
     outDir: "dist/frontend",
     manifest: true,
     emptyOutDir: true,
-    terserOptions: {
-      compress: {
-        drop_console: true,
-      },
-    },
-    rollupOptions: {
+    rolldownOptions: {
       input: {
-        public: resolve(__dirname, "index.html"),
-        admin: resolve(__dirname, "admin.html"),
+        public: resolve(import.meta.dirname, "index.html"),
+        admin: resolve(import.meta.dirname, "admin.html"),
       },
       output: {
-        manualChunks(id) {
-          if (id.includes("/node_modules/vue/")) return "vue";
-          if (id.includes("/node_modules/vue-router/")) return "vue-router";
-          if (id.includes("/node_modules/pinia/")) return "pinia";
-
-          if (id.includes("/node_modules/date-fns/")) return "date-fns";
-          if (id.includes("/node_modules/ky/")) return "ky";
-
-          // @vuelidate/core
-          if (id.includes("/node_modules/@vuelidate/core/"))
-            return "@vuelidate/core";
-          if (id.includes("/node_modules/@vuelidate/validators/"))
-            return "@vuelidate/validators";
-
-          // @kyvg/vue3-notification
-          if (id.includes("/node_modules/@kyvg/vue3-notification/"))
-            return "@kyvg/vue3-notification";
-
-          // pica
-          if (id.includes("/node_modules/pica/")) return "pica";
-          // pica-resize-image
-          if (id.includes("/node_modules/pica-resize-image/"))
-            return "pica-resize-image";
-          // heic2any
-          if (id.includes("/node_modules/heic2any/")) return "heic2any";
+        codeSplitting: {
+          groups: [
+            "vue",
+            "vue-router",
+            "pinia",
+            "date-fns",
+            "ky",
+            "@vuelidate/core",
+            "@vuelidate/validators",
+            "@kyvg/vue3-notification",
+            "pica",
+            "pica-resize-image",
+            "heic2any",
+          ].map((name) => ({
+            name,
+            test: (id: string) => id.includes(`/node_modules/${name}/`),
+            // Keep modules used only by admin out of public entry chunks.
+            entriesAware: true,
+          })),
         },
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash].[ext]",

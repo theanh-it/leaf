@@ -3,9 +3,9 @@ import { createErrorMessage } from "@/helpers/response";
 
 import { STATUS_RESPONSE } from "@/constants";
 
-import type { ContextCustom } from "@/types";
+import type { ContextAuth } from "@/types";
 
-export default async (context: ContextCustom) => {
+export default async (context: ContextAuth) => {
   if (!context.user || !context.user.id || context.user.username !== "admin") {
     const errorMessage = createErrorMessage({
       status: STATUS_RESPONSE.validationError,
