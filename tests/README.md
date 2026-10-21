@@ -22,6 +22,7 @@ Tên thư mục, chữ hoa/thường, tên file HTTP method, `_middleware` và `
 | `helpers/backup-operation.ts`             | `tests/helpers/backup-operation.test.ts`             | Khóa dùng chung giữa backup/restore và giữa server bundle/route nạp động       |
 | `helpers/client-ip.ts`                    | `tests/helpers/client-ip.test.ts`                    | IP socket, proxy tin cậy, IPv4/IPv6 và header sai định dạng                    |
 | `helpers/image.ts`                        | `tests/helpers/image.test.ts`                        | Nhận diện định dạng bằng nội dung, ghi ảnh và giới hạn upload                  |
+| `helpers/video.ts`                        | `tests/helpers/video.test.ts`                        | Chuyển HLS thật, video không audio, giới hạn upload, timeout và dọn file tạm   |
 | `helpers/request.ts`                      | `tests/helpers/request.test.ts`                      | Parse Zod, bỏ field thừa và lỗi input gốc                                      |
 | `helpers/restore-backup.ts`               | `tests/helpers/restore-backup.test.ts`               | Khôi phục DB/files thật, rollback, archive cũ/hỏng và archive nguy hiểm        |
 | `middlewares/required-admin.ts`           | `tests/middlewares/required-admin.test.ts`           | Quyền admin theo role và hạ quyền với JWT cũ                                   |

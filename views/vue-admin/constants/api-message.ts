@@ -41,4 +41,12 @@ export const API_ERROR_MESSAGE: Record<string, string> = {
   "users.cannotDeleteSelf": "Không thể xóa tài khoản đang đăng nhập.",
   "users.notFound": "Không tìm thấy người dùng.",
   "validation.error": "Dữ liệu không hợp lệ.",
+  EMPTY_VIDEO: "File video không được để trống.",
+  VIDEO_TOO_LARGE: "Video vượt giới hạn dung lượng cho phép.",
+  UNSUPPORTED_VIDEO_TYPE: "Định dạng video không được hỗ trợ.",
+  UPLOAD_BUSY: "Máy chủ đang xử lý video khác. Vui lòng thử lại sau.",
+  FFMPEG_UNAVAILABLE: "Máy chủ chưa sẵn sàng chuyển đổi video.",
+  CONVERSION_FAILED: "Không thể chuyển đổi video sang HLS.",
+  CONVERSION_TIMEOUT: "Chuyển đổi video vượt thời gian cho phép.",
+  WRITE_FAILED: "Không thể lưu file. Vui lòng thử lại.",
 } as const;

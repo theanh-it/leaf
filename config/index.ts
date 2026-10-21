@@ -61,6 +61,21 @@ export const config = {
         "image/webp",
       ],
     },
+    video: {
+      folder: "videos/hls",
+      maxFileSize: getPositiveInteger(
+        process.env.UPLOAD_VIDEO_MAX_FILE_SIZE,
+        500 * 1024 * 1024
+      ),
+      concurrency: getPositiveInteger(process.env.UPLOAD_VIDEO_CONCURRENCY, 1),
+      ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
+      timeoutMs: getPositiveInteger(
+        process.env.UPLOAD_VIDEO_TIMEOUT_MS,
+        600_000
+      ),
+      segmentDuration: getPositiveInteger(process.env.HLS_SEGMENT_DURATION, 6),
+      threads: getPositiveInteger(process.env.UPLOAD_VIDEO_THREADS, 2),
+    },
   },
   cors: {
     origin: (process.env.CORS_ORIGIN?.split(",") || [
